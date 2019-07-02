@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data;
-using MySql.Data;
 using MySql.Data.MySqlClient;
-using System.Configuration;
-using System.Windows.Forms;
 
-namespace ERPDesktopDADA.Helpers
+namespace ElecDocServices.Helpers
 {
     /******************************************************
     * En esta clase se definen todos lo metodos para  
@@ -19,42 +15,34 @@ namespace ERPDesktopDADA.Helpers
     /// <summary>
     /// Clase que contiene las funciones para operaciones de consulta con base de datos MySQL
     /// </summary>
-    class conexionMySQL
+    class ConMySQL
     {
         //Clases Globales
-        private utilidades utl = new utilidades();
-        private errors err = new errors();
+        private Utils utl = new Utils();
+        private Errors err = null;
 
         //Variables Globales
         private MySqlConnection sqlConn = null;
         private MySqlDataAdapter daAdapter = null;
         private MySqlCommand sqlcomm = null;
+
+        //Variables Globales
+        private string ConfigPath = null;
+        private string SystemUser = null;
+
+
         private string sql = null;
         private DataTable dtTable = null;
 
-        public int sistema = 0;
-        public string user = null;
-
 
 
         /// <summary>
-        /// Inicializa una instancia de conexionMySQL con target esquema del Dealer del sistema
+        /// Inicializa una instancia de ConMySQL con target esquema del Dealer del sistema
         /// </summary>
-        public conexionMySQL()
+        public ConMySQL(string Config, string SysUser)
         {
-            this.sistema = global.Dealer;
+            
         }
-
-
-        /// <summary>
-        /// Inicializa una instancia de conexionMySQL con target esquema del Dealer especifico
-        /// </summary>
-        /// <param name="sis">Valor de esquema de conexion (Dealer de conexion)</param>
-        public conexionMySQL(int sis)
-        {
-            this.sistema = sis;
-        }
-
 
 
         ///<summary>
@@ -63,26 +51,14 @@ namespace ERPDesktopDADA.Helpers
         //Conexion a la base SAL /GT
         private string obtenerConnectionString()
         {
-            string con = null;
+            string user = utl.convertirString(utl.getConfigValue(this.ConfigPath, "USER", "mysql"));
+            string pass = utl.convertirString(utl.getConfigValue(this.ConfigPath, "PASSWORD", "mysql"));
+            string server = utl.convertirString(utl.getConfigValue(this.ConfigPath, "SERVER", "mysql"));
+            string database = utl.convertirString(utl.getConfigValue(this.ConfigPath, "DATABASE", "mysql"));
 
-            if (global.Development)
-            {
-                if (this.sistema == 16)
-                {
-                    con = (utl.convertirBoolean(accesos.getConfigValue("DBGT_TEST", "references"))) ? "DEVDADAGTConnection" : global.congt;
-                }
-                else
-                {
-                    con = (utl.convertirBoolean(accesos.getConfigValue("DBSV_TEST", "references"))) ? "DEVDADAConnection" : global.consal;
-                }
-            }
-            else
-            {
-                con = (this.sistema == 16) ? global.congt : global.consal;
-            }
+            string constring = "Data Source=" + server + ";Database=" + database + ";User Id=" + user + ";Password=" + pass + ";";
 
-            
-            return con;
+            return constring;
         }
 
         
@@ -92,8 +68,7 @@ namespace ERPDesktopDADA.Helpers
         //Apertura de Conexion
         private void conectar()
         {
-            string con = obtenerConnectionString();
-            sqlConn = new MySqlConnection(ConfigurationManager.ConnectionStrings[con].ConnectionString);
+            sqlConn = new MySqlConnection(obtenerConnectionString());
 
             if (sqlConn != null && sqlConn.State != ConnectionState.Open)
             {
@@ -119,364 +94,6 @@ namespace ERPDesktopDADA.Helpers
 
         #region consultas
 
-
-
-        ///<summary>
-        ///Obtiene un catalogo por consulta y almacena en ComboBox
-        ///</summary>
-        ///<param name="tabla">Nombre de tabla de base de datos</param>
-        ///<param name="value">Campo que estará en el objeto value del ComboBox</param>
-        ///<param name="text">Campo que estará en el objeto Text (Visible) del ComboBox</param>
-        ///<param name="cb">Objeto ComboBox que tendrá el source de datos</param>
-        ///<param name="ordby">Sentencia SQL Order de la data (campos) (Syntax SQL) (Opcional)</param>
-        ///<param name="where">Sentencia SQL Where de la data para filtrado (Syntax SQL) (Opcional)</param>
-        ///<param name="limit">Limite de registros a traer (Opcional)</param>
-        //Obtiene un catalogo por consulta y almacena en combo
-        public void obtenerCatalogo(string tabla, string value, string text, ComboBox cb, string ordby = "", string where = "", int? limit = null)
-        {
-            try
-            {
-                this.conectar();
-                sql = "select " + value + ", " + text + " from " + tabla + " ";
-                sql += (where != "") ? " where " + where + " " : "";
-                sql += (ordby != "") ? " order by " + ordby : "";
-                sql += (limit != null) ? " limit " + utl.convertirString(limit) : "";
-                sql += " ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-                cb.DisplayMember = text;
-                cb.ValueMember = value;
-                cb.DataSource = dtTable;
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "Catalogo - MySQL");
-                this.desconectar();
-            }
-        }
-
-
-        ///<summary>
-        ///Obtiene un catalogo por consulta y almacena en ComboBox
-        ///</summary>
-        ///<param name="tabla">Nombre de tabla de base de datos</param>
-        ///<param name="campos">Nombre de campos a seleccionar.</param>
-        ///<param name="value">Campo que estará en el objeto value del ComboBox</param>
-        ///<param name="text">Campo que estará en el objeto Text (Visible) del ComboBox</param>
-        ///<param name="cb">Objeto ComboBox que tendrá el source de datos</param>
-        ///<param name="ordby">Sentencia SQL Order de la data (campos) (Syntax SQL) (Opcional)</param>
-        ///<param name="where">Sentencia SQL Where de la data para filtrado (Syntax SQL) (Opcional)</param>
-        ///<param name="limit">Limite de registros a traer (Opcional)</param>
-        //Obtiene un catalogo por consulta y almacena en combo
-        public void obtenerCatalogo(string tabla, string campos, string value, string text, ComboBox cb, string ordby = "", string where = "", int? limit = null)
-        {
-            try
-            {
-                this.conectar();
-                sql = "select " + campos + " from " + tabla + " ";
-                sql += (where != "") ? " where " + where + " " : "";
-                sql += (ordby != "") ? " order by " + ordby : "";
-                sql += (limit != null) ? " limit " + utl.convertirString(limit) : "";
-                sql += " ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-                cb.DisplayMember = text;
-                cb.ValueMember = value;
-                cb.DataSource = dtTable;
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "Catalogo - MySQL");
-                this.desconectar();
-            }
-        }
-
-
-        ///<summary>
-        ///Obtiene un catalogo por consulta y almacena en ComboBox
-        ///</summary>
-        ///<param name="tabla">Nombre de tabla de base de datos</param>
-        ///<param name="campos">Campos a traer en el source de datos</param>
-        ///<param name="value">Campo que estará en el objeto value del ComboBox</param>
-        ///<param name="text">Campo que estará en el objeto Text (Visible) del ComboBox</param>
-        ///<param name="join">Arreglo de cadenas para Sentencias SQL join (Syntax SQL)</param>
-        ///<param name="cb">Objeto ComboBox que tendrá el source de datos</param>
-        ///<param name="groupby">Sentencia SQL GROUP BY de la data (Syntax SQL) (Opcional)</param>
-        ///<param name="ordby">Sentencia SQL ORDER BY de la data (campos) (Syntax SQL) (Opcional)</param>
-        ///<param name="where">Sentencia SQL WHERE de la data para filtrado (Syntax SQL) (Opcional)</param>
-        ///<param name="limit">Limite de registros a traer (Opcional)</param>
-        //Obtiene un catalogo por consulta y almacena en combo
-        public void obtenerCatalogo(string tabla, string campos, string value, string text, string[] join, ComboBox cb, string groupby = "", string ordby = "", string where = "", int? limit = null)
-        {
-            try
-            {
-                this.conectar();
-                sql = "select " + campos + " from " + tabla + " ";
-                for (int i = 0; i < join.Length; i++)
-                {
-                    sql += " " + join[i] + " ";
-                }
-                sql += (where != "") ? " where " + where : "";
-                sql += (groupby != "") ? " group by " + groupby : "";
-                sql += (ordby != "") ? " order by " + ordby : "";
-                sql += (limit != null) ? " limit " + utl.convertirString(limit) : "";
-                sql += " ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-                cb.DisplayMember = text;
-                cb.ValueMember = value;
-                cb.DataSource = dtTable;
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "Catalogo - mySQL");
-                this.desconectar();
-            }
-        }
-
-
-        ///<summary>
-        ///Obtiene un catalogo por procedimiento y almacena en ComboBox
-        ///</summary>
-        ///<param name="procedimiento">Nombre de Procedimiento Almacenado</param>
-        ///<param name="datos">Arreglo de datos parametros del procedimiento almacenado</param>
-        ///<param name="value">Campo que estará en el objeto value del ComboBox</param>
-        ///<param name="text">Campo que estará en el objeto Text (Visible) del ComboBox</param>
-        ///<param name="cb">Objeto ComboBox que tendrá el source de datos</param>
-        //Obtiene un catalogo por procedimiento y almacena en combo
-        public void obtenerCatalogo(string procedimiento, string[] datos, string text, string value, ComboBox cb)
-        {
-            try
-            {
-                this.conectar();
-                sql = "CALL " + procedimiento + " ( ";
-                for (int i = 0; i < datos.Count(); i++)
-                {
-                    if (i != 0) { sql += ", "; }
-                    sql += (datos[i] != "") ? "'" + datos[i] + "'" : "''";
-                }
-                sql += " ) ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-                cb.DisplayMember = text;
-                cb.ValueMember = value;
-                cb.DataSource = dtTable;
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "Catalogo - MySQL");
-                this.desconectar();
-            }
-        }
-
-
-        /// <summary>
-        /// Obtiene un catalogo por consulta y se almacena en un TextBox con AutoComplete
-        /// </summary>
-        /// <param name="tabla">Nombre de tabla de base datos</param>
-        /// <param name="value">Campo que estará en el objeto value del TextBox</param>
-        /// <param name="txt">Objeto TextBox que tendrá el source de datos</param>
-        /// <param name="ordby">Sentencia SQL GROUP BY de la data (Syntax SQL) (Opcional)</param>
-        /// <param name="where">Sentencia SQL WHERE de la data para filtrado (Syntax SQL) (Opcional)</param>
-        /// <param name="limit">Limite de registros a traer (Opcional)</param>
-        //Obtiene un catalogo por consulta y se almacena en un TextBox con AutoComplete
-        public void obtenerCatalogoText(string tabla, string value, TextBox txt, string ordby = "", string where = "", int? limit = null)
-        {
-            try
-            {
-                this.conectar();
-                sql = "select " + value + " from " + tabla + " ";
-                sql += (where != "") ? " where " + where : "";
-                sql += (ordby != "") ? " order by " + ordby : "";
-                sql += (limit != null) ? " limit " + utl.convertirString(limit) : "";
-                sql += " ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-
-                AutoCompleteStringCollection asc = new AutoCompleteStringCollection();
-
-                if (dtTable.Rows.Count > 0)
-                {
-                    foreach (DataRow r in dtTable.Rows)
-                    {
-                        asc.Add(utl.convertirString(r[value]));
-                    }
-
-                    txt.AutoCompleteCustomSource = asc;
-                    txt.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                }
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "CatalogoText - mySQL");
-                this.desconectar();
-            }
-        }
-
-
-        /// <summary>
-        /// Obtiene un catalogo por consulta y se almacena en un TextBox con AutoComplete
-        /// </summary>
-        /// <param name="tabla">Nombre de tabla de base datos</param>
-        /// <param name="campos">Campos a traer en el source de datos</param>
-        /// <param name="value">Campo que estará en el objeto value del TextBox</param>
-        /// <param name="txt">Objeto TextBox que tendrá el source de datos</param>
-        /// <param name="ordby">Sentencia SQL GROUP BY de la data (Syntax SQL) (Opcional)</param>
-        /// <param name="where">Sentencia SQL WHERE de la data para filtrado (Syntax SQL) (Opcional)</param>
-        /// <param name="limit">Limite de registros a traer (Opcional)</param>
-        //Obtiene un catalogo por consulta y se almacena en un TextBox con AutoComplete
-        public void obtenerCatalogoText(string tabla, string campos, string value, TextBox txt, string ordby = "", string where = "", int? limit = null)
-        {
-            try
-            {
-                this.conectar();
-                sql = "select " + campos + " from " + tabla + " ";
-                sql += (where != "") ? " where " + where : "";
-                sql += (ordby != "") ? " order by " + ordby : "";
-                sql += (limit != null) ? " limit " + utl.convertirString(limit) : "";
-                sql += " ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-
-                AutoCompleteStringCollection asc = new AutoCompleteStringCollection();
-
-                if (dtTable.Rows.Count > 0)
-                {
-                    foreach (DataRow r in dtTable.Rows)
-                    {
-                        asc.Add(utl.convertirString(r[value]));
-                    }
-
-                    txt.AutoCompleteCustomSource = asc;
-                    txt.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                }
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "CatalogoText - mySQL");
-                this.desconectar();
-            }
-        }
-
-
-        /// <summary>
-        /// Obtiene un catalogo por consulta y se almacena en un TextBox con AutoComplete
-        /// </summary>
-        /// <param name="tabla">Nombre de tabla de base datos</param>
-        /// <param name="campos">Campos a traer en el source de datos</param>
-        /// <param name="value">Campo que estará en el objeto value del TextBox</param>
-        /// <param name="join">Arreglo de cadenas para Sentencias SQL join (Syntax SQL</param>
-        /// <param name="txt">Objeto TextBox que tendrá el source de datos</param>
-        /// <param name="ordby">Sentencia SQL GROUP BY de la data (Syntax SQL) (Opcional)</param>
-        /// <param name="where">Sentencia SQL WHERE de la data para filtrado (Syntax SQL) (Opcional)</param>
-        /// <param name="groupby">Sentencia SQL GROUP BY de la data (Syntax SQL) (Opcional)</param>
-        /// <param name="limit">Limite de registros a traer (Opcional)</param>
-        //Obtiene un catalogo por consulta y se almacena en un TextBox con AutoComplete
-        public void obtenerCatalogoText(string tabla, string campos, string value, string[] join, TextBox txt, string ordby = "", string where = "", string groupby = "", int? limit = null)
-        {
-            try
-            {
-                this.conectar();
-                sql = "select " + campos + " from " + tabla + " ";
-                for (int i = 0; i < join.Length; i++)
-                {
-                    sql += " " + join[i] + " ";
-                }
-                sql += (where != "") ? " where " + where : "";
-                sql += (groupby != "") ? " group by " + groupby : "";
-                sql += (ordby != "") ? " order by " + ordby : "";
-                sql += (limit != null) ? " limit " + utl.convertirString(limit) : "";
-                sql += " ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-
-                AutoCompleteStringCollection asc = new AutoCompleteStringCollection();
-
-                if (dtTable.Rows.Count > 0)
-                {
-                    foreach (DataRow r in dtTable.Rows)
-                    {
-                        asc.Add(utl.convertirString(r[value]));
-                    }
-
-                    txt.AutoCompleteCustomSource = asc;
-                    txt.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                }
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "CatalogoText - mySQL");
-                this.desconectar();
-            }
-        }
-
-
-        /// <summary>
-        /// Obtiene un catalogo por procedimiento y almacena en un TextBox con AutoComplete
-        /// </summary>
-        /// <param name="procedimiento">Nombre de Procedimiento Almacenado</param>
-        /// <param name="datos">Arreglo de datos parametros del procedimiento almacenado</param>
-        /// <param name="value">Campo que estará en el objeto value del TextBox</param>
-        /// <param name="txt">Objeto TextBox que tendrá el source de datos</param>
-        //Obtiene un catalogo por procedimiento y almacena en un TextBox con AutoComplete
-        public void obtenerCatalogoText(string procedimiento, string[] datos, string value, TextBox txt)
-        {
-            try
-            {
-                this.conectar();
-                sql = "CALL " + procedimiento + " ( ";
-                for (int i = 0; i < datos.Count(); i++)
-                {
-                    if (i != 0) { sql += ", "; }
-                    sql += (datos[i] != "") ? "'" + datos[i] + "'" : "''";
-                }
-                sql += " ) ;";
-                daAdapter = new MySqlDataAdapter(sql, sqlConn);
-                dtTable = new DataTable();
-                daAdapter.Fill(dtTable);
-
-                AutoCompleteStringCollection asc = new AutoCompleteStringCollection();
-
-                if (dtTable.Rows.Count > 0)
-                {
-                    foreach (DataRow r in dtTable.Rows)
-                    {
-                        asc.Add(utl.convertirString(r[value]));
-                    }
-
-                    txt.AutoCompleteCustomSource = asc;
-                    txt.AutoCompleteSource = AutoCompleteSource.CustomSource;
-                }
-
-                this.desconectar();
-            }
-            catch (Exception e)
-            {
-                err.AddErrors(e, sql, obtenerConnectionString(), "Catalogo - MySQL");
-                this.desconectar();
-            }
-        }
 
 
         ///<summary>
@@ -509,7 +126,6 @@ namespace ERPDesktopDADA.Helpers
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos - MySQL");
                 this.desconectar();
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return new DataTable();
             }
         }
@@ -551,7 +167,6 @@ namespace ERPDesktopDADA.Helpers
             catch (Exception e)
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos - MySQL");
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.desconectar();
                 return new DataTable();
             }
@@ -589,7 +204,7 @@ namespace ERPDesktopDADA.Helpers
                 {
                     foreach (DataRow r in dtw.Rows)
                     {
-                        err.AddErrors("Warning: " + utl.convertirString(r["Message"]), "Cod. Error:" + utl.convertirString(r["Code"]), "Query Procedure - MySQL", sql, global.userNetData);
+                        err.AddErrors("Warning: " + utl.convertirString(r["Message"]), "Cod. Error:" + utl.convertirString(r["Code"]), "Query Procedure - MySQL", sql, this.SystemUser);
                     }
                 }
 
@@ -601,7 +216,6 @@ namespace ERPDesktopDADA.Helpers
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos SP - MySQL");
                 this.desconectar();
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return new DataTable();
             }
         }
@@ -635,7 +249,6 @@ namespace ERPDesktopDADA.Helpers
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos SP - MySQL");
                 this.desconectar();
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -678,7 +291,6 @@ namespace ERPDesktopDADA.Helpers
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos - MySQL");
                 this.desconectar();
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -727,7 +339,6 @@ namespace ERPDesktopDADA.Helpers
             catch (Exception e)
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos - MySQL");
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.desconectar();
                 return null;
             }
@@ -764,7 +375,6 @@ namespace ERPDesktopDADA.Helpers
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Count Datos - MySQL");
                 this.desconectar();
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return conteo;
             }
         }
@@ -806,7 +416,6 @@ namespace ERPDesktopDADA.Helpers
             catch (Exception e)
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Datos - MySQL");
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.desconectar();
                 return conteo;
             }
@@ -844,7 +453,6 @@ namespace ERPDesktopDADA.Helpers
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Max Datos - MySQL");
                 this.desconectar();
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -887,7 +495,6 @@ namespace ERPDesktopDADA.Helpers
             catch (Exception e)
             {
                 err.AddErrors(e, sql, obtenerConnectionString(), "Select Max Datos - MySQL");
-                MessageBox.Show("Error en la obtención de Datos.", "Error de Sistema", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.desconectar();
                 return null;
             }
@@ -1280,7 +887,7 @@ namespace ERPDesktopDADA.Helpers
                     retorno = false;
                     foreach (DataRow r in dtw.Rows)
                     {
-                        err.AddErrors("Warning: " + utl.convertirString(r["Message"]), "Cod. Error:" + utl.convertirString(r["Code"]), "Procedure - MySQL", sql, global.userNetData);
+                        err.AddErrors("Warning: " + utl.convertirString(r["Message"]), "Cod. Error:" + utl.convertirString(r["Code"]), "Procedure - MySQL", sql, this.SystemUser);
                     }
                 }
                 else

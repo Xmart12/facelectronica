@@ -6,3 +6,11 @@ C:\Projects\TFS\Compusal\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.c
 C:\Projects\TFS\Compusal\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csproj.CopyComplete
 C:\Projects\TFS\Compusal\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.dll
 C:\Projects\TFS\Compusal\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.pdb
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\bin\Debug\FTPConnection.dll
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\bin\Debug\FTPConnection.pdb
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\bin\Debug\WinSCPnet.dll
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csprojAssemblyReference.cache
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csproj.CoreCompileInputs.cache
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csproj.CopyComplete
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.dll
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.pdb

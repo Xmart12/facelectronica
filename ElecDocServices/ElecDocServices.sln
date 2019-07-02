@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElecDocServices", "ElecDocS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTPConnection", "FTPConnection\FTPConnection.csproj", "{D5CF9EBF-59CC-4614-9870-41D75A662E10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{5079FAD0-85F8-4150-BB23-0BED81B90247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D5CF9EBF-59CC-4614-9870-41D75A662E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5CF9EBF-59CC-4614-9870-41D75A662E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5CF9EBF-59CC-4614-9870-41D75A662E10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5079FAD0-85F8-4150-BB23-0BED81B90247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5079FAD0-85F8-4150-BB23-0BED81B90247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5079FAD0-85F8-4150-BB23-0BED81B90247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5079FAD0-85F8-4150-BB23-0BED81B90247}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
