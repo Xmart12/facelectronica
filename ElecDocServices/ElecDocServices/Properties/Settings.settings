@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ElecDocServices_IfacereServices_SSO_wsEFactura" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://www.ifacere.com/lineapruebas/sso_wsefactura.asmx</Value>
+      <Value Profile="(Default)">https://www.ifacere.com/lineapruebas/sso_wsefactura.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

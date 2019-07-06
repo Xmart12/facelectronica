@@ -26,7 +26,7 @@ namespace ElecDocServices.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://www.ifacere.com/lineapruebas/sso_wsefactura.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://www.ifacere.com/lineapruebas/sso_wsefactura.asmx")]
         public string ElecDocServices_IfacereServices_SSO_wsEFactura {
             get {
                 return ((string)(this["ElecDocServices_IfacereServices_SSO_wsEFactura"]));

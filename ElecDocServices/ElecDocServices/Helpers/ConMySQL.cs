@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Data;
 using MySql.Data.MySqlClient;
+using System.IO;
 
 namespace ElecDocServices.Helpers
 {
@@ -41,7 +42,13 @@ namespace ElecDocServices.Helpers
         /// </summary>
         public ConMySQL(string Config, string SysUser)
         {
-            
+            if (!File.Exists(Config))
+            {
+                throw new Exception("Config file does not exists");
+            }
+
+            this.ConfigPath = Config;
+            this.SystemUser = SysUser;
         }
 
 
