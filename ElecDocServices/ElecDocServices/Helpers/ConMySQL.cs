@@ -16,7 +16,7 @@ namespace ElecDocServices.Helpers
     /// <summary>
     /// Clase que contiene las funciones para operaciones de consulta con base de datos MySQL
     /// </summary>
-    class ConMySQL
+    internal class ConMySQL
     {
         //Clases Globales
         private Utils utl = new Utils();

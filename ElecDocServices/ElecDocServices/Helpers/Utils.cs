@@ -18,7 +18,7 @@ namespace ElecDocServices.Helpers
     /// <summary>
     /// Clase de funciones utilitarias para control de datos y reciclado de procesos
     /// </summary>
-    class Utils
+    internal class Utils
     {
 
         /// <summary>

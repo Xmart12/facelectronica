@@ -13,7 +13,7 @@ namespace ElecDocServices.Helpers
     /// <summary>
     /// Clase para el control de bitacora de errores en el programa
     /// </summary>
-    class Errors
+    internal class Errors
     {
         //Variables globales
         private string ErrorPath = null;
