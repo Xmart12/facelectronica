@@ -114,8 +114,8 @@ namespace ElecDocServices
             DocDetail = con.obtenerDatos("documentdetail", campos, whr);
 
             // Datos Proveedor
-            campos = " cd.Resolucion, cd.Fecha, cd.Documento, cd.Serie, cd.Ultimo, df.FormatName, ";
-            campos += " sp.Name Proveedor, sp.ClassName, sp.ProviderAuth ";
+            campos = " cd.Resolucion, cd.Fecha, cd.Documento, cd.Serie, cd.Ultimo, cd.Liquidado ";
+            campos += " df.FormatName, sp.Name Proveedor, sp.ClassName, sp.ProviderAuth ";
 
             string[] join = new string[]
             {
@@ -123,11 +123,28 @@ namespace ElecDocServices
                 "left join docformat df on cd.Formato = df.FormatID",
             };
 
+            whr = " cd.Documento = '" + this.TipoDoc + "' and cd.Resolucion = '" + this.Resolucion + "' ";
+            whr += " cd.Serie = '" + this.SerieDoc + "' ";
+
+            DocProvider = con.obtenerDatos("corrdocument cd", campos, join, whr);
+
             if (DocHeader.Rows.Count.Equals(0) || DocDetail.Rows.Count.Equals(0))
             {
                 throw new Exception("No se encontró el documento");
             }
             
+            if (DocProvider.Rows.Count.Equals(0))
+            {
+                throw new Exception("No se encontró resolución de documento");
+            }
+            else if (DocProvider.Rows.Count > 0)
+            {
+                if (utl.convertirBoolean(DocProvider.Rows[0]["Liquidado"]))
+                {
+                    throw new Exception("Resolución de documento está liquidado");
+                }
+            }
+
         }
 
 
