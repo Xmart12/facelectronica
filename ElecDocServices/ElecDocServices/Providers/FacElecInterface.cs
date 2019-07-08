@@ -4,7 +4,7 @@ using ElecDocServices.Helpers;
 
 namespace ElecDocServices.Providers
 {
-    internal interface FacElecInterface
+    internal interface IFacElecInterface
     {
         DataTable DocHeader { get; set; }
         DataTable DocDetail { get; set; }

@@ -7,7 +7,7 @@ using ElecDocServices.IfacereServices;
 
 namespace ElecDocServices.Providers
 {
-    internal class Ifacere : FacElecInterface
+    internal class Ifacere : IFacElecInterface
     {
         private Utils utl = new Utils();
 
@@ -17,7 +17,7 @@ namespace ElecDocServices.Providers
 
 
         //Funcion de comunicacion con Ifacere para Registro de documento
-        List<Parameter> FacElecInterface.RegistrarDocumento()
+        List<Parameter> IFacElecInterface.RegistrarDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
 
@@ -38,7 +38,7 @@ namespace ElecDocServices.Providers
 
 
         //Funcion de comunicacion con Ifacere para Obtencion de datos de documento registrado
-        List<Parameter> FacElecInterface.ObtenerDocumento()
+        List<Parameter> IFacElecInterface.ObtenerDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
 
@@ -59,7 +59,7 @@ namespace ElecDocServices.Providers
 
 
         //Funcion de comunicacion con Ifacere para Anulacion de documento
-        List<Parameter> FacElecInterface.AnularDocumento()
+        List<Parameter> IFacElecInterface.AnularDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
 
