@@ -1629,53 +1629,9 @@ namespace FTPConnection
 
     #region clasesHelpers
 
-    
-    //ReportData
-    public class ReportData
-    {
-        public ReportData()
-        {
-            this.ReportParameters = new List<Parameter>();
-            this.DataParameters = new List<Parameter>();
-
-            this.Pdf = true;
-            this.Word = false;
-            this.Excel = false;
-
-            this.btnExport = true;
-            this.btnPrint = true;
-            this.PrintMode = true;
-
-            this.PrintDirect = false;
-            this.PrintbyPrinter = false;
-            this.PrinterName = null;
-        }
-
-        public bool IsLocal { get; set; }
-        public string Area { get; set; }
-        public string NamespaceName { get; set; }
-        public string ReportName { get; set; }
-        public string DisplayName { get; set; }
-        public List<Parameter> ReportParameters { get; set; }
-        public List<Parameter> DataParameters { get; set; }
-        public DataTable Datos { get; set; }
-
-        public bool Pdf { get; set; }
-        public bool Word { get; set; }
-        public bool Excel { get; set; }
-
-        public bool btnExport { get; set; }
-        public bool btnPrint { get; set; }
-        public bool PrintMode { get; set; }
-
-        public bool PrintDirect { get; set; }
-        public bool PrintbyPrinter { get; set; }
-        public string PrinterName { get; set; }
-    }
-
 
     //Parametros
-    public class Parameter
+    internal class Parameter
     {
         public string ParameterName { get; set; }
         public object Value { get; set; }
@@ -1683,7 +1639,7 @@ namespace FTPConnection
 
 
     //Seleccion ComboBox
-    public class SelectionItem
+    internal class SelectionItem
     {
         public string Text { get; set; }
         public object Value { get; set; }
@@ -1697,7 +1653,7 @@ namespace FTPConnection
 
 
     //Convertir Numero a Letras
-    public class ConversorLetraNumero
+    internal class ConversorLetraNumero
     {
         private Utils utl = new Utils();
 

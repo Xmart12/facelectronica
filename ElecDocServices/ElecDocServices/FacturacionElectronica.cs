@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -71,7 +72,21 @@ namespace ElecDocServices
 
             CargarDatos();
 
-            
+            try
+            {
+                string provider = utl.convertirString(DocProvider.Rows[0]["ClassName"]);
+
+                IFacElecInterface inter = ObtenerInterface(provider);
+                inter.DocHeader = this.DocHeader;
+                inter.DocDetail = this.DocDetail;
+
+                List<Parameter> res = inter.RegistrarDocumento();
+            }
+            catch (Exception ex)
+            {
+                err.AddErrors(ex, "Registro de Documento");
+                this.Mensaje = "Error en la Ejecución: " + ex.Message;
+            }
 
             return false;
         }
@@ -145,6 +160,37 @@ namespace ElecDocServices
                 }
             }
 
+        }
+
+
+        private bool GuardarPDF(object data)
+        {
+            bool resultado = false;
+
+            try
+            {
+                string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
+                string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
+
+                if (data != null)
+                {
+                    File.WriteAllBytes(localpath + filename, (byte[])data);
+
+                    resultado = true;
+                }
+                else
+                {
+                    resultado = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                err.AddErrors(ex, "Conversion PDF");
+                resultado = false;
+            }
+
+            return resultado;
+            
         }
 
 
