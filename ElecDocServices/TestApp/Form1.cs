@@ -13,13 +13,13 @@ namespace TestApp
     public partial class Form1 : Form
     {
         private string config = "C:\\Projects\\TFS\\Compusal\\Resources\\config.config";
-        private RegistroFacturaDigital reg = null;
+        private FacturacionElectronica reg = null;
 
         public Form1()
         {
             InitializeComponent();
 
-            reg = new RegistroFacturaDigital(config, "USUARIO");
+            reg = new FacturacionElectronica(config, "USUARIO");
         }
 
 
@@ -38,14 +38,14 @@ namespace TestApp
 
                 if (re)
                 {
-                    MessageBox.Show("Factura Registrada");
-                    reg.DescargarDocumento(res, doc, ser, corr);
+                    MessageBox.Show("Factura Registrada: " + reg.Mensaje);
+                    reg.ObtenerDocumento(res, doc, ser, corr);
                 }
                 else
                 {
-                    if (reg.mensaje != null)
+                    if (reg.Mensaje != null)
                     {
-                        MessageBox.Show("Error, respuesta: " + reg.mensaje);
+                        MessageBox.Show("Error, respuesta: " + reg.Mensaje);
                     }
                     else
                     {
@@ -71,7 +71,7 @@ namespace TestApp
             try
             {
 
-                bool re = reg.DescargarDocumento(res, doc, ser, corr);
+                bool re = reg.ObtenerDocumento(res, doc, ser, corr);
 
                 if (re)
                 {
@@ -79,9 +79,9 @@ namespace TestApp
                 }
                 else
                 {
-                    if (reg.mensaje != null)
+                    if (reg.Mensaje != null)
                     {
-                        MessageBox.Show("Error, respuesta: " + reg.mensaje);
+                        MessageBox.Show("Error, respuesta: " + reg.Mensaje);
                     }
                     else
                     {

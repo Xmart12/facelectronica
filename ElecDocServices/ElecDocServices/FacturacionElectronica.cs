@@ -9,7 +9,7 @@ using FTPConnection;
 
 namespace ElecDocServices
 {
-    class FacturacionElectronica
+    public class FacturacionElectronica
     {
         //Clases Globales
         private Utils utl = null;
@@ -57,38 +57,84 @@ namespace ElecDocServices
             this.utl = new Utils();
             string errorPath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "SERVICES", "errors"));
             this.con = new ConMySQL(this.ConfigFile, this.UserSystem);
-            this.err = new Errors(this.UserSystem, "FacturacionElectronica", "");
-
+            this.err = new Errors(this.UserSystem, "ElecDocs", errorPath);
+            this.ftp = new FtpAccess(this.ConfigFile, this.UserSystem);
         }
 
 
         public bool RegistrarDocumento(string Res, string Tipo, string Serie, string DocNo)
         {
+            bool resultado = false;
+            string msg = null;
+
             //Seteo de variables de negocio
             this.Resolucion = Res;
             this.TipoDoc = Tipo;
             this.SerieDoc = Serie;
             this.NoDocumento = DocNo;
 
+            //Carga de Datos
             CargarDatos();
 
             try
             {
+                //Obtencion de Clase del proveedor para ejecucion del proceso
                 string provider = utl.convertirString(DocProvider.Rows[0]["ClassName"]);
 
+                //Seleccion de interface segun clase de proveedor
                 IFacElecInterface inter = ObtenerInterface(provider);
+
+                //Carga de elementos en la interface
                 inter.DocHeader = this.DocHeader;
                 inter.DocDetail = this.DocDetail;
 
+                //Ejecucion de proceso
                 List<Parameter> res = inter.RegistrarDocumento();
+
+                //Bitacora de ejecucion
+                GuardarBitacora(res);
+
+                //Obtencion de resultados
+                resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
+                msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+                object pdf = res.FirstOrDefault(f => f.ParameterName.Equals("Respuesta")).Value;
+                string extmsg = null;
+
+                //Verificacion de resultado exitoso
+                if (resultado)
+                {
+                    //Verificacion de Guardado de PDF localmente
+                    if (GuardarPDF(pdf))
+                    {
+                        //Verificacion de permiso de guardado en servidor
+                        if (utl.convertirBoolean(utl.getConfigValue(this.ConfigFile, "FTP", "services")))
+                        {
+                            //Verificacion de subida de documento
+                            if (!SubirDocumento())
+                            {
+                                extmsg = " - Error en proceso, ver log.";
+                                err.AddErrors("Error en carga de documento a servidor", null, null, this.UserSystem);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        extmsg = " - Error en proceso, ver log.";
+                        err.AddErrors("Error en guardado de documento", null, null, this.UserSystem);
+                    }
+                }
+
+                //Captura de mensajes
+                this.Mensaje = msg + extmsg;
             }
             catch (Exception ex)
             {
+                //Captura de Excepcion
                 err.AddErrors(ex, "Registro de Documento");
                 this.Mensaje = "Error en la Ejecución: " + ex.Message;
             }
 
-            return false;
+            return resultado;
         }
 
 
@@ -109,14 +155,17 @@ namespace ElecDocServices
         {
             // Encabezado
 
-            string campos = "Resolucion, Documento, Serie, DocNo, ReferenciaDoc, Fecha, Empresa, Sucursal, Caja, ";
-            campos += " Usuario, Divisa, TasaCambio, TipoGeneracion, NombreCliente, DireccionCliente, NITCliente, ";
-            campos += " ValorNeto, IVA, Descuento, Exento, Total, Estado, Observacion";
+            string campos = " dh.Resolucion, dh.Documento, dh.Serie, dh.DocNo, dh.ReferenciaDoc, dh.Fecha, dh.Empresa, ";
+            campos += " dh.Sucursal, dh.Caja, dh.Usuario, dh.Divisa, bg.Name Moneda, dh.TasaCambio, dh.TipoGeneracion, ";
+            campos += " dh.NombreCliente, dh.DireccionCliente, dh.NITCliente, dh.ValorNeto, dh.IVA, dh.Descuento,  ";
+            campos += " dh.Exento, dh.Total, dh.Estado, dh.Observacion ";
 
-            string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
-            whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
+            string[] join = { "left join Badge bg on dh.Divisa = bg.BadgeID " };
 
-            DocHeader = con.obtenerDatos("documentheader", campos, whr);
+            string whr = "dh.Resolucion = '" + this.Resolucion + "' and dh.Documento = '" + this.TipoDoc + "' ";
+            whr += " and dh.Serie = '" + this.SerieDoc + "' and dh.DocNo = '" + this.NoDocumento + "' ";
+
+            DocHeader = con.obtenerDatos("documentheader dh", campos, join, whr);
 
             // Detalle
 
@@ -129,37 +178,90 @@ namespace ElecDocServices
             DocDetail = con.obtenerDatos("documentdetail", campos, whr);
 
             // Datos Proveedor
-            campos = " cd.Resolucion, cd.Fecha, cd.Documento, cd.Serie, cd.Ultimo, cd.Liquidado ";
-            campos += " df.FormatName, sp.Name Proveedor, sp.ClassName, sp.ProviderAuth ";
 
-            string[] join = new string[]
+            campos = " cd.Resolucion, cd.Fecha, cd.Documento, cd.Serie, cd.Ultimo, cd.Liquidado, ";
+            campos += " df.FormatName, sp.Name Proveedor, sp.ClassName, sp.ProviderAuth, sp.ServiceURL ";
+
+            join = new string[]
             {
                 "left join serviceprovider sp on cd.ProviderID = sp.ProviderID",
                 "left join docformat df on cd.Formato = df.FormatID",
             };
 
             whr = " cd.Documento = '" + this.TipoDoc + "' and cd.Resolucion = '" + this.Resolucion + "' ";
-            whr += " cd.Serie = '" + this.SerieDoc + "' ";
+            whr += " and cd.Serie = '" + this.SerieDoc + "' ";
 
             DocProvider = con.obtenerDatos("corrdocument cd", campos, join, whr);
 
+
+            //Validacion de Documento encontrado
             if (DocHeader.Rows.Count.Equals(0) || DocDetail.Rows.Count.Equals(0))
             {
                 throw new Exception("No se encontró el documento");
             }
             
+            //Validacion de Resolucion de proceedor encontrada
             if (DocProvider.Rows.Count.Equals(0))
             {
                 throw new Exception("No se encontró resolución de documento");
             }
             else if (DocProvider.Rows.Count > 0)
             {
+                //Validacion de resolucion de proveedor aun vigente
                 if (utl.convertirBoolean(DocProvider.Rows[0]["Liquidado"]))
                 {
                     throw new Exception("Resolución de documento está liquidado");
                 }
             }
+        }
 
+
+        private void GuardarBitacora(List<Parameter> par)
+        {
+            string[] campos = new string[]
+            {
+                "Fecha", "Usuario", "HostName", "IpAddresses", "MacAddresses", "ServiceUrl", "FunctionName",
+                "Resolucion", "Documento", "Serie", "DocNo", "XmlData", "OtherParameters", "Resultado",
+                "Descripcion", "Respuesta", "DocTrib", "CAE", "CAEC", "OtherResponse"
+            };
+
+            string ips = utl.convertirArraytoString(utl.getIpAddress().ToArray());
+            string macs = utl.convertirArraytoString(utl.getMACAddress().ToArray());
+            string url = utl.convertirString(this.DocProvider.Rows[0]["ServiceURL"]);
+            string function = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("Function")).Value);
+            string xml = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("XML")).Value);
+            bool res = utl.convertirBoolean(par.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
+            string mensaje = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+            string iddoc = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("IDDoc")).Value);
+            string cae = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
+            string caec = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAEC")).Value);
+
+            object[] datos = new object[]
+            {
+                utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, utl.getHostName(), ips, macs, url, function, 
+                this.Resolucion, this.TipoDoc, this.SerieDoc, this.NoDocumento, xml, null, res,
+                mensaje, null, iddoc, cae, caec, null
+            };
+
+            bool resultado = con.execInsert("logelecdocument", campos, datos);
+
+            if (!resultado)
+            {
+                err.AddErrors("No se ingreso bitacora de documento", "", null, this.UserSystem);
+            }
+        }
+
+
+        private void ActualizarRegistro(List<Parameter> par)
+        {
+            string doc = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("IDDoc")).Value);
+            bool allowFtp = utl.convertirBoolean(utl.getConfigValue(this.ConfigFile, "FTP", "services"));
+            string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
+            string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
+            string path = (allowFtp) ? (remotepath + filename) : null;
+
+            string[] campos = { "Registrado", "FechaRegistro", "UsuarioRegistro", "RefDocTributario", "DocumentPath" };
+            object[] datos = { true, utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, doc, path };
         }
 
 
@@ -174,7 +276,7 @@ namespace ElecDocServices
 
                 if (data != null)
                 {
-                    File.WriteAllBytes(localpath + filename, (byte[])data);
+                    File.WriteAllBytes((localpath + filename), (byte[])data);
 
                     resultado = true;
                 }
@@ -191,6 +293,48 @@ namespace ElecDocServices
 
             return resultado;
             
+        }
+
+
+        private bool SubirDocumento()
+        {
+            bool resultado = false;
+
+            try
+            {
+                string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
+                string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
+                string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
+
+                resultado = ftp.uploadWinFtp(remotepath, (localpath + filename));
+            }
+            catch (Exception ex)
+            {
+                err.AddErrors(ex, "Guardar documento en servidor");
+            }
+
+            return resultado;
+        }
+
+
+        private bool DescargarDocumento()
+        {
+            bool resultado = false;
+
+            try
+            {
+                string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
+                string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
+                string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
+
+                resultado = ftp.downloadWinFtp((remotepath + filename), (localpath + filename));
+            }
+            catch (Exception ex)
+            {
+                err.AddErrors(ex, "Descargar documento de servidor");
+            }
+
+            return resultado;
         }
 
 
@@ -213,3 +357,4 @@ namespace ElecDocServices
 
     }
 }
+ 

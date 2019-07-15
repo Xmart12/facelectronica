@@ -20,11 +20,12 @@ namespace ElecDocServices.Providers
         List<Parameter> IFacElecInterface.RegistrarDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
+            string xml = null;
 
             try
             {
                 SSO_wsEFactura service = new SSO_wsEFactura();
-                string xml = ConstruirXMLRegistro();
+                xml = ConstruirXMLRegistro();
                 res = service.RegistraFacturaXML_PDF(xml);
             }
             catch (Exception ex)
@@ -33,7 +34,7 @@ namespace ElecDocServices.Providers
                 res.pDescripcion = ex.Message;
             }
 
-            return ObtenerDatosResultado(res);
+            return ObtenerDatosResultado(res, xml, "RegistraFacturaXML_PDF");
         }
 
 
@@ -41,11 +42,12 @@ namespace ElecDocServices.Providers
         List<Parameter> IFacElecInterface.ObtenerDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
+            string xml = null;
 
             try
             {
                 SSO_wsEFactura service = new SSO_wsEFactura();
-                string xml = ConstruirXMLRetorno();
+                xml = ConstruirXMLRetorno();
                 res = service.RetornaDatosFacturaXML_PDF(xml);
             }
             catch (Exception ex)
@@ -54,7 +56,7 @@ namespace ElecDocServices.Providers
                 res.pDescripcion = ex.Message;
             }
 
-            return ObtenerDatosResultado(res);
+            return ObtenerDatosResultado(res, xml, "RetornaDatosFacturaXML_PDF");
         }
 
 
@@ -62,11 +64,12 @@ namespace ElecDocServices.Providers
         List<Parameter> IFacElecInterface.AnularDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
+            string xml = null;
 
             try
             {
                 SSO_wsEFactura service = new SSO_wsEFactura();
-                string xml = ConstruirXMLAnulacion();
+                xml = ConstruirXMLAnulacion();
                 res = service.AnulacionFacturaXML(xml);
             }
             catch (Exception ex)
@@ -75,7 +78,7 @@ namespace ElecDocServices.Providers
                 res.pDescripcion = ex.Message;
             }
 
-            return ObtenerDatosResultado(res);
+            return ObtenerDatosResultado(res, xml, "AnulacionFacturaXML");
         }
 
 
@@ -240,18 +243,20 @@ namespace ElecDocServices.Providers
 
 
         //Construcion de listado de datos a retornar por las funciones
-        private List<Parameter> ObtenerDatosResultado(clsResponseGeneral res)
+        private List<Parameter> ObtenerDatosResultado(clsResponseGeneral res, string xml, string function)
         {
             List<Parameter> parameters = new List<Parameter>
             {
-                new Parameter() { ParameterName = "Respultado", Value = res.pResultado },
+                new Parameter() { ParameterName = "XML", Value = xml },
+                new Parameter() { ParameterName = "Function", Value = function },
+                new Parameter() { ParameterName = "Resultado", Value = res.pResultado },
                 new Parameter() { ParameterName = "Respuesta", Value = res.pRespuesta },
-                new Parameter() { ParameterName = "IDDocSAT", Value = res.pIdSerieSat },
+                new Parameter() { ParameterName = "Mensaje", Value = res.pDescripcion },
+                new Parameter() { ParameterName = "IDDoc", Value = res.pIdSerieSat },
                 new Parameter() { ParameterName = "Serie", Value = res.pIdSerieSat },
                 new Parameter() { ParameterName = "DocNo", Value = res.pNoDocumento },
                 new Parameter() { ParameterName = "CAE", Value = res.pCAE },
-                new Parameter() { ParameterName = "CAEC", Value = res.pCAEC },
-                new Parameter() { ParameterName = "Mensaje", Value = res.pDescripcion }
+                new Parameter() { ParameterName = "CAEC", Value = res.pCAEC }
             };
 
             return parameters;

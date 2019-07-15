@@ -49,6 +49,9 @@ namespace ElecDocServices.Helpers
 
             this.ConfigPath = Config;
             this.SystemUser = SysUser;
+
+            string path = utl.convertirString(utl.getConfigValue(this.ConfigPath, "SQL", "errors"));
+            err = new Errors(this.SystemUser, "SQL", path);
         }
 
 

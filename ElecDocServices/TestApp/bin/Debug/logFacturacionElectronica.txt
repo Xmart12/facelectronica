@@ -1,0 +1,33 @@
+
+
+FECHA: 13/07/2019 09:47:58 p.m.
+USER: USUARIO
+ERROR: Referencia a objeto no establecida como instancia de un objeto.-
+INNERERROR: -
+COMENTARIO: Registro de Documento-
+TRACKING:    en ElecDocServices.FacturacionElectronica.GuardarBitacora(List`1 par) en C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\FacturacionElectronica.cs:l¡nea 222
+   en ElecDocServices.FacturacionElectronica.RegistrarDocumento(String Res, String Tipo, String Serie, String DocNo) en C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\FacturacionElectronica.cs:l¡nea 95
+
+
+FECHA: 13/07/2019 11:16:36 p.m.
+USER: USUARIO
+ERROR: Referencia a objeto no establecida como instancia de un objeto.-
+INNERERROR: -
+COMENTARIO: Registro de Documento-
+TRACKING:    en ElecDocServices.FacturacionElectronica.GuardarBitacora(List`1 par) en C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\FacturacionElectronica.cs:l¡nea 225
+   en ElecDocServices.FacturacionElectronica.RegistrarDocumento(String Res, String Tipo, String Serie, String DocNo) en C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\FacturacionElectronica.cs:l¡nea 95
+
+
+FECHA: 13/07/2019 11:26:08 p.m.
+USER: USUARIO
+ERROR: Referencia a objeto no establecida como instancia de un objeto.-
+INNERERROR: -
+COMENTARIO: Guardar documento en servidor-
+TRACKING:    en ElecDocServices.FacturacionElectronica.SubirDocumento() en C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\FacturacionElectronica.cs:l¡nea 288
+
+
+FECHA: 13/07/2019 11:26:08 p.m.
+USER: USUARIO
+ERROR: Error en carga de documento a servidor-
+INNERERROR: -
+LOCALIZACION: 
