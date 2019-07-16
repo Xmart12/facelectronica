@@ -32,7 +32,13 @@ namespace ElecDocServices
         private DataTable DocDetail = null;
         private DataTable DocProvider = null;
 
+        //Variables Bandera
+        private enum Modo { None, Registro, Obtencion, Anulacion, };
+        private Modo Funcion = Modo.None;
+
+        //Variables de interaccion con usuario
         public string Mensaje = null;
+
 
 
         /// <summary>
@@ -62,16 +68,19 @@ namespace ElecDocServices
         }
 
 
-        public bool RegistrarDocumento(string Res, string Tipo, string Serie, string DocNo)
+        public bool RegistrarDocumento(string Resol, string Tipo, string Serie, string DocNo)
         {
             bool resultado = false;
             string msg = null;
 
             //Seteo de variables de negocio
-            this.Resolucion = Res;
+            this.Resolucion = Resol;
             this.TipoDoc = Tipo;
             this.SerieDoc = Serie;
             this.NoDocumento = DocNo;
+
+            //Seteo de modo de funcion
+            Funcion = Modo.Registro;
 
             //Carga de Datos
             CargarDatos();
@@ -97,31 +106,16 @@ namespace ElecDocServices
                 //Obtencion de resultados
                 resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
                 msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
-                object pdf = res.FirstOrDefault(f => f.ParameterName.Equals("Respuesta")).Value;
                 string extmsg = null;
 
                 //Verificacion de resultado exitoso
                 if (resultado)
                 {
-                    //Verificacion de Guardado de PDF localmente
-                    if (GuardarPDF(pdf))
-                    {
-                        //Verificacion de permiso de guardado en servidor
-                        if (utl.convertirBoolean(utl.getConfigValue(this.ConfigFile, "FTP", "services")))
-                        {
-                            //Verificacion de subida de documento
-                            if (!SubirDocumento())
-                            {
-                                extmsg = " - Error en proceso, ver log.";
-                                err.AddErrors("Error en carga de documento a servidor", null, null, this.UserSystem);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        extmsg = " - Error en proceso, ver log.";
-                        err.AddErrors("Error en guardado de documento", null, null, this.UserSystem);
-                    }
+                    //Actualizacion de registros
+                    ActualizarRegistro(res);
+
+                    //Ejecucion de proceso de Documento PDF
+                    ProcesoPDF(res, ref extmsg);
                 }
 
                 //Captura de mensajes
@@ -138,9 +132,83 @@ namespace ElecDocServices
         }
 
 
-        public bool ObtenerDocumento(string Res, string TipoDoc, string Serie, string DocNo)
+        public bool ObtenerDocumento(string Resol, string TipoDoc, string Serie, string DocNo)
         {
-            return false;
+            bool resultado = false;
+            string msg = null;
+
+            //Seteo de variables de negocio
+            this.Resolucion = Resol;
+            this.TipoDoc = TipoDoc;
+            this.SerieDoc = Serie;
+            this.NoDocumento = DocNo;
+
+            //Seteo de modo de funcion
+            Funcion = Modo.Obtencion;
+
+            //Carga de Datos
+            CargarDatos();
+
+            try
+            {
+                string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
+                string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
+                string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
+                
+
+                if (ftp.fileExist(remotepath, filename))
+                {
+                    resultado = DescargarDocumento();
+
+                    if (!resultado)
+                    {
+                        this.Mensaje = "No se pudo descargar el documento. Revisar log";
+                    }
+                }
+                else
+                {
+                    //Obtencion de Clase del proveedor para ejecucion del proceso
+                    string provider = utl.convertirString(DocProvider.Rows[0]["ClassName"]);
+
+                    //Seleccion de interface segun clase de proveedor
+                    IFacElecInterface inter = ObtenerInterface(provider);
+
+                    //Carga de elementos en la interface
+                    inter.DocHeader = this.DocHeader;
+                    inter.DocDetail = this.DocDetail;
+
+                    //Ejecucion de proceso
+                    List<Parameter> res = inter.ObtenerDocumento();
+
+                    //Obtencion de resultados
+                    resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
+                    msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+                    string extmsg = null;
+
+                    //Verificacion de resultado
+                    if (resultado)
+                    {
+                        //Ejecucion de proceso de documento PDF
+                        ProcesoPDF(res, ref extmsg);
+
+                        if (extmsg != null)
+                        {
+                            //Captura de mensajes
+                            this.Mensaje = msg + extmsg;
+                            resultado = false;
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                //Captura de Excepcion
+                err.AddErrors(ex, "Obtencion de Documento");
+                this.Mensaje = "Error en la Ejecución: " + ex.Message;
+            }
+
+            return resultado;
         }
 
 
@@ -158,7 +226,7 @@ namespace ElecDocServices
             string campos = " dh.Resolucion, dh.Documento, dh.Serie, dh.DocNo, dh.ReferenciaDoc, dh.Fecha, dh.Empresa, ";
             campos += " dh.Sucursal, dh.Caja, dh.Usuario, dh.Divisa, bg.Name Moneda, dh.TasaCambio, dh.TipoGeneracion, ";
             campos += " dh.NombreCliente, dh.DireccionCliente, dh.NITCliente, dh.ValorNeto, dh.IVA, dh.Descuento,  ";
-            campos += " dh.Exento, dh.Total, dh.Estado, dh.Observacion ";
+            campos += " dh.Exento, dh.Total, dh.Estado, dh.Observacion, dh.Estado ";
 
             string[] join = { "left join Badge bg on dh.Divisa = bg.BadgeID " };
 
@@ -199,6 +267,22 @@ namespace ElecDocServices
             {
                 throw new Exception("No se encontró el documento");
             }
+            else if (DocHeader.Rows.Count > 0)
+            {
+                //Verificacion del modo registro
+                if (Funcion.Equals(Modo.Registro))
+                {
+                    //Verificacion de estado de documento
+                    if (utl.convertirInt(DocHeader.Rows[0]["Estado"]).Equals(1))
+                    {
+                        throw new Exception("Documento se encuentra registrado");
+                    }
+                    else if (utl.convertirInt(DocHeader.Rows[0]["Estado"]).Equals(2))
+                    {
+                        throw new Exception("Documento se encuentra anulado");
+                    }
+                }
+            }
             
             //Validacion de Resolucion de proceedor encontrada
             if (DocProvider.Rows.Count.Equals(0))
@@ -207,10 +291,14 @@ namespace ElecDocServices
             }
             else if (DocProvider.Rows.Count > 0)
             {
-                //Validacion de resolucion de proveedor aun vigente
-                if (utl.convertirBoolean(DocProvider.Rows[0]["Liquidado"]))
+                //Verificacion del modo registro
+                if (Funcion.Equals(Modo.Registro))
                 {
-                    throw new Exception("Resolución de documento está liquidado");
+                    //Validacion de resolucion de proveedor aun vigente
+                    if (utl.convertirBoolean(DocProvider.Rows[0]["Liquidado"]))
+                    {
+                        throw new Exception("Resolución de documento está liquidado");
+                    }
                 }
             }
         }
@@ -254,14 +342,54 @@ namespace ElecDocServices
 
         private void ActualizarRegistro(List<Parameter> par)
         {
+            //Obtencion de datos para actualizar
             string doc = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("IDDoc")).Value);
             bool allowFtp = utl.convertirBoolean(utl.getConfigValue(this.ConfigFile, "FTP", "services"));
             string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
             string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
             string path = (allowFtp) ? (remotepath + filename) : null;
 
-            string[] campos = { "Registrado", "FechaRegistro", "UsuarioRegistro", "RefDocTributario", "DocumentPath" };
-            object[] datos = { true, utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, doc, path };
+            //Preparacion de actualizacion de registro
+            string[] campos = { "Registrado", "FechaRegistro", "UsuarioRegistro", "RefDocTributario", "DocumentPath", "Estado" };
+            object[] datos = { true, utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, doc, path, 1 };
+            string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
+            whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
+
+            //Actualizacion de registro
+            bool res = con.execUpdate("documentheader", campos, datos, whr);
+
+            //Verificacion de actualizacion de registro
+            if (!res)
+            {
+                err.AddErrors("No se actualizo registro de documento", null, null, this.UserSystem);
+            }
+        }
+
+
+        private void ProcesoPDF(List<Parameter> par, ref string extmsg)
+        {
+            //Obtencion de documento PDF Bytes
+            object pdf = par.FirstOrDefault(f => f.ParameterName.Equals("Respuesta")).Value;
+
+            //Verificacion de Guardado de PDF localmente
+            if (GuardarPDF(pdf))
+            {
+                //Verificacion de permiso de guardado en servidor
+                if (utl.convertirBoolean(utl.getConfigValue(ConfigFile, "FTP", "services")))
+                {
+                    //Verificacion de subida de documento
+                    if (!SubirDocumento())
+                    {
+                        extmsg = " - Error en proceso, ver log.";
+                        err.AddErrors("Error en carga de documento a servidor", null, null, this.UserSystem);
+                    }
+                }
+            }
+            else
+            {
+                extmsg = " - Error en proceso, ver log.";
+                err.AddErrors("Error en guardado de documento", null, null, this.UserSystem);
+            }
         }
 
 
@@ -277,8 +405,15 @@ namespace ElecDocServices
                 if (data != null)
                 {
                     File.WriteAllBytes((localpath + filename), (byte[])data);
-
                     resultado = true;
+
+                    if (!utl.openFile((localpath + filename)))
+                    {
+                        if (this.Funcion.Equals(Modo.Obtencion))
+                        {
+                            err.AddErrors("Error en apertura de archivo", null, null, this.UserSystem);
+                        }
+                    }
                 }
                 else
                 {
@@ -328,6 +463,11 @@ namespace ElecDocServices
                 string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
 
                 resultado = ftp.downloadWinFtp((remotepath + filename), (localpath + filename));
+
+                if (resultado)
+                {
+                    utl.openFile((localpath + filename));
+                }
             }
             catch (Exception ex)
             {
