@@ -5,5 +5,8 @@
     <Setting Name="ElecDocServices_IfacereServices_SSO_wsEFactura" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">https://www.ifacere.com/lineapruebas/sso_wsefactura.asmx</Value>
     </Setting>
+    <Setting Name="ElecDocServices_IngfaceServices_ingface" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://www.ingface.net:443/listener/ingface</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

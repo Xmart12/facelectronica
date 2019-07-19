@@ -58,8 +58,14 @@
     </Compile>
     <Compile Include="Providers\FacElecInterface.cs" />
     <Compile Include="Providers\Ifacere.cs" />
+    <Compile Include="Providers\Ingface.cs" />
     <Compile Include="RegistroFacturaDigital.cs" />
     <Compile Include="Web References\IfacereServices\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\IngfaceServices\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -97,6 +103,29 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\IfacereServices\sso_wsefactura.disco" />
+    <None Include="Web References\IngfaceServices\ingface.wsdl" />
+    <None Include="Web References\IngfaceServices\ingface.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\IngfaceServices\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\IngfaceServices\responseAnulacionDte.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\IngfaceServices\responseCierre.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\IngfaceServices\responseDte.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\IngfaceServices\responseDteSap.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\IngfaceServices\responseValidacion.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -115,6 +144,17 @@
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ElecDocServices_IfacereServices_SSO_wsEFactura</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="https://www.ingface.net/listener/ingface%3fwsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\IngfaceServices\</RelPath>
+      <UpdateFromURL>https://www.ingface.net/listener/ingface%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>ElecDocServices_IngfaceServices_ingface</CachedSettingsPropName>
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>

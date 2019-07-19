@@ -32,5 +32,15 @@ namespace ElecDocServices.Properties {
                 return ((string)(this["ElecDocServices_IfacereServices_SSO_wsEFactura"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://www.ingface.net:443/listener/ingface")]
+        public string ElecDocServices_IngfaceServices_ingface {
+            get {
+                return ((string)(this["ElecDocServices_IngfaceServices_ingface"]));
+            }
+        }
     }
 }

@@ -212,9 +212,64 @@ namespace ElecDocServices
         }
 
 
-        public bool AnularDocumento(string Res, string TipoDoc, string Serie, string DocNo)
+        public bool AnularDocumento(string Resol, string TipoDoc, string Serie, string DocNo)
         {
-            return false;
+            bool resultado = false;
+            string msg = null;
+
+            //Seteo de variables de negocio
+            this.Resolucion = Resol;
+            this.TipoDoc = TipoDoc;
+            this.SerieDoc = Serie;
+            this.NoDocumento = DocNo;
+
+            //Seteo de modo de funcion
+            Funcion = Modo.Anulacion;
+
+            //Carga de Datos
+            CargarDatos();
+
+            try
+            {
+                //Obtencion de Clase del proveedor para ejecucion del proceso
+                string provider = utl.convertirString(DocProvider.Rows[0]["ClassName"]);
+
+                //Seleccion de interface segun clase de proveedor
+                IFacElecInterface inter = ObtenerInterface(provider);
+
+                //Carga de elementos en la interface
+                inter.DocHeader = this.DocHeader;
+                inter.DocDetail = this.DocDetail;
+
+                //Ejecucion de proceso
+                List<Parameter> res = inter.AnularDocumento();
+
+                //Bitacora de ejecucion
+                GuardarBitacora(res);
+
+                //Obtencion de resultados
+                resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
+                msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+                string extmsg = null;
+
+                if (resultado)
+                {
+                    //Actualizacion de registro de anulacion
+                    ActualizarRegsitroAnulacion(res);
+                }
+
+                //Captura de mensajes
+                this.Mensaje = msg + extmsg;
+            }
+            catch (Exception ex)
+            {
+                //Captura de Excepcion
+                err.AddErrors(ex, "Obtencion de Documento");
+                this.Mensaje = "Error en la Ejecución: " + ex.Message;
+            }
+
+            return resultado;
+
         }
 
 
@@ -352,6 +407,25 @@ namespace ElecDocServices
             //Preparacion de actualizacion de registro
             string[] campos = { "Registrado", "FechaRegistro", "UsuarioRegistro", "RefDocTributario", "DocumentPath", "Estado" };
             object[] datos = { true, utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, doc, path, 1 };
+            string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
+            whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
+
+            //Actualizacion de registro
+            bool res = con.execUpdate("documentheader", campos, datos, whr);
+
+            //Verificacion de actualizacion de registro
+            if (!res)
+            {
+                err.AddErrors("No se actualizo registro de documento", null, null, this.UserSystem);
+            }
+        }
+
+
+        private void ActualizarRegsitroAnulacion(List<Parameter> par)
+        {
+            //Preparacion de actualizacion de registro
+            string[] campos = { "FechaAnulacion", "UsuarioAnulacion", "Estado" };
+            object[] datos = { utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, 2 };
             string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
             whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
 
