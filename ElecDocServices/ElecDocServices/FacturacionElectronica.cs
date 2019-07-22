@@ -37,15 +37,18 @@ namespace ElecDocServices
         private Modo Funcion = Modo.None;
 
         //Variables de interaccion con usuario
+        /// <summary>
+        /// Mansaje de estado de proceso
+        /// </summary>
         public string Mensaje = null;
 
 
 
         /// <summary>
-        /// 
+        /// Constructor de Entrada. Instancia una sesion de facturacion electronica
         /// </summary>
-        /// <param name="Config"></param>
-        /// <param name="User"></param>
+        /// <param name="Config">Path de ubicacion del archivo de configuracion</param>
+        /// <param name="User">Usuario de sistema</param>
         //Constructor de Entrada
         public FacturacionElectronica(string Config, string User)
         {
@@ -68,14 +71,23 @@ namespace ElecDocServices
         }
 
 
-        public bool RegistrarDocumento(string Resol, string Tipo, string Serie, string DocNo)
+        /// <summary>
+        /// Funcion de Registro de documento segun datos enviados
+        /// </summary>
+        /// <param name="Resol">Resolucion de proveedor a la que pertenece el documento</param>
+        /// <param name="TipoDoc">TipoDoc de documento a registrar</param>
+        /// <param name="Serie">Serie del documento a registrar</param>
+        /// <param name="DocNo">Correlativo del documento a registrar</param>
+        /// <returns>Respuesta de éxito o fallo de registro. Ver Variable de mensaje</returns>
+        //Registro de documento al proveedor
+        public bool RegistrarDocumento(string Resol, string TipoDoc, string Serie, string DocNo)
         {
             bool resultado = false;
             string msg = null;
 
             //Seteo de variables de negocio
             this.Resolucion = Resol;
-            this.TipoDoc = Tipo;
+            this.TipoDoc = TipoDoc;
             this.SerieDoc = Serie;
             this.NoDocumento = DocNo;
 
@@ -132,6 +144,15 @@ namespace ElecDocServices
         }
 
 
+        /// <summary>
+        /// Funcion de obtencion de documento segun datos enviados
+        /// </summary>
+        /// <param name="Resol">Resolucion de proveedor a la que pertenece el documento</param>
+        /// <param name="TipoDoc">TipoDoc de documento a obtener</param>
+        /// <param name="Serie">Serie del documento a obtener</param>
+        /// <param name="DocNo">Correlativo del documento a obtener</param>
+        /// <returns>Respuesta de éxito o fallo de obtencion de documento. Ver Variable de mensaje</returns>
+        //Obtencion del documento del proveedor
         public bool ObtenerDocumento(string Resol, string TipoDoc, string Serie, string DocNo)
         {
             bool resultado = false;
@@ -151,15 +172,19 @@ namespace ElecDocServices
 
             try
             {
+                //Seteo de variables de archivo
                 string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
                 string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
                 string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
-                
 
+                
+                //Verificacion de existencia de archivo en servidor
                 if (ftp.fileExist(remotepath, filename))
                 {
+                    //Descarga de documento
                     resultado = DescargarDocumento();
 
+                    //Verificacion de resultado
                     if (!resultado)
                     {
                         this.Mensaje = "No se pudo descargar el documento. Revisar log";
@@ -212,6 +237,15 @@ namespace ElecDocServices
         }
 
 
+        /// <summary>
+        /// Funcion de Anulacion de documentos segun datos enviados
+        /// </summary>
+        /// <param name="Resol">Resolucion de proveedor a la que pertenece el documento</param>
+        /// <param name="TipoDoc">TipoDoc de documento a anular</param>
+        /// <param name="Serie">Serie del documento a anular</param>
+        /// <param name="DocNo">Correlativo del documento a anular</param>
+        /// <returns>Respuesta de éxito o fallo de anulacion de documento. Ver Variable de mensaje</returns>
+        //Anulacion de documento al proveedor
         public bool AnularDocumento(string Resol, string TipoDoc, string Serie, string DocNo)
         {
             bool resultado = false;
@@ -274,6 +308,10 @@ namespace ElecDocServices
 
 
 
+        #region Funciones
+
+
+        //Carga de datos del documento
         private void CargarDatos()
         {
             // Encabezado
@@ -359,8 +397,10 @@ namespace ElecDocServices
         }
 
 
+        //Guardado de datos en bitacora en base de datos
         private void GuardarBitacora(List<Parameter> par)
         {
+            //Campos a guardar
             string[] campos = new string[]
             {
                 "Fecha", "Usuario", "HostName", "IpAddresses", "MacAddresses", "ServiceUrl", "FunctionName",
@@ -368,6 +408,7 @@ namespace ElecDocServices
                 "Descripcion", "Respuesta", "DocTrib", "CAE", "CAEC", "OtherResponse"
             };
 
+            //Obtencion de datos a guardar
             string ips = utl.convertirArraytoString(utl.getIpAddress().ToArray());
             string macs = utl.convertirArraytoString(utl.getMACAddress().ToArray());
             string url = utl.convertirString(this.DocProvider.Rows[0]["ServiceURL"]);
@@ -379,6 +420,7 @@ namespace ElecDocServices
             string cae = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
             string caec = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAEC")).Value);
 
+            //Arreglo de datos
             object[] datos = new object[]
             {
                 utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, utl.getHostName(), ips, macs, url, function, 
@@ -386,8 +428,10 @@ namespace ElecDocServices
                 mensaje, null, iddoc, cae, caec, null
             };
 
+            //Insercion de bitacora
             bool resultado = con.execInsert("logelecdocument", campos, datos);
 
+            //Verificacion de resultado
             if (!resultado)
             {
                 err.AddErrors("No se ingreso bitacora de documento", "", null, this.UserSystem);
@@ -395,6 +439,7 @@ namespace ElecDocServices
         }
 
 
+        //Actualizacion de registro de documento
         private void ActualizarRegistro(List<Parameter> par)
         {
             //Obtencion de datos para actualizar
@@ -421,6 +466,7 @@ namespace ElecDocServices
         }
 
 
+        //Actualizacion de registro (anulacion) de documento
         private void ActualizarRegsitroAnulacion(List<Parameter> par)
         {
             //Preparacion de actualizacion de registro
@@ -440,6 +486,7 @@ namespace ElecDocServices
         }
 
 
+        //Funcion para la preparacion de guardado de documento PDF
         private void ProcesoPDF(List<Parameter> par, ref string extmsg)
         {
             //Obtencion de documento PDF Bytes
@@ -452,7 +499,7 @@ namespace ElecDocServices
                 if (utl.convertirBoolean(utl.getConfigValue(ConfigFile, "FTP", "services")))
                 {
                     //Verificacion de subida de documento
-                    if (!SubirDocumento())
+                    if (!CargarDocumento())
                     {
                         extmsg = " - Error en proceso, ver log.";
                         err.AddErrors("Error en carga de documento a servidor", null, null, this.UserSystem);
@@ -461,41 +508,52 @@ namespace ElecDocServices
             }
             else
             {
+                //Guardado de error de proceso
                 extmsg = " - Error en proceso, ver log.";
                 err.AddErrors("Error en guardado de documento", null, null, this.UserSystem);
             }
         }
 
 
+        //Funcion de conversion de datos a archivo PDF
         private bool GuardarPDF(object data)
         {
             bool resultado = false;
 
             try
             {
+                //Preparacion de ubicacion y nombre de archivo
                 string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
                 string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
 
+                //Verificacion de datos nulos
                 if (data != null)
                 {
+                    //Guardado de documento
                     File.WriteAllBytes((localpath + filename), (byte[])data);
                     resultado = true;
 
+                    //Apertura de documento
                     if (!utl.openFile((localpath + filename)))
                     {
+                        //Verificacion de modo de proceso
                         if (this.Funcion.Equals(Modo.Obtencion))
                         {
+                            //Guardado de log
                             err.AddErrors("Error en apertura de archivo", null, null, this.UserSystem);
                         }
                     }
                 }
                 else
                 {
+                    //Guardado de bitacora
                     resultado = false;
+                    err.AddErrors("No hay datos que convertir a PDF", null, null, this.UserSystem);
                 }
             }
             catch (Exception ex)
             {
+                //Captura de excepcion
                 err.AddErrors(ex, "Conversion PDF");
                 resultado = false;
             }
@@ -505,20 +563,24 @@ namespace ElecDocServices
         }
 
 
-        private bool SubirDocumento()
+        //Carga de documento PDF a servidor FTP
+        private bool CargarDocumento()
         {
             bool resultado = false;
 
             try
             {
+                //Preparacion de nombre y ubicacion de archivos
                 string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
                 string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
                 string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
 
+                //Carga de archivo
                 resultado = ftp.uploadWinFtp(remotepath, (localpath + filename));
             }
             catch (Exception ex)
             {
+                //Captura de excepcion
                 err.AddErrors(ex, "Guardar documento en servidor");
             }
 
@@ -526,25 +588,31 @@ namespace ElecDocServices
         }
 
 
+        //Descarga de documento PDF desde servidor FTP
         private bool DescargarDocumento()
         {
             bool resultado = false;
 
             try
             {
+                //Preparacion de nombre y ubicacion de archivo
                 string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
                 string localpath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "DOCPATH", "services"));
                 string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
 
+                //Descarga de documento
                 resultado = ftp.downloadWinFtp((remotepath + filename), (localpath + filename));
 
+                //Verificacion de resultado de descarga
                 if (resultado)
                 {
+                    //Apertura de archivo
                     utl.openFile((localpath + filename));
                 }
             }
             catch (Exception ex)
             {
+                //Captura de excpecion
                 err.AddErrors(ex, "Descargar documento de servidor");
             }
 
@@ -552,21 +620,24 @@ namespace ElecDocServices
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="proveedor"></param>
-        /// <returns></returns>
+        //Obtencion de interface de servicio de facturacion electronica
         private IFacElecInterface ObtenerInterface(string proveedor)
         {
+            //Busqueda de clase proveedor para instanciar interface
             var _className = (from t in System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
                               where t.Name.Equals(proveedor)
                               select t.FullName).Single();
 
+            //Instancia de interface
             IFacElecInterface _class = (IFacElecInterface)Activator.CreateInstance(Type.GetType(_className)); 
 
+            //Retorno de interface
             return _class;
         }
+
+
+
+        #endregion
 
 
     }

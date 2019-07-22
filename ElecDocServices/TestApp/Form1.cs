@@ -99,7 +99,36 @@ namespace TestApp
         //Anular
         private void button3_Click(object sender, EventArgs e)
         {
+            string res = textBox6.Text;
+            string doc = textBox1.Text;
+            string ser = textBox2.Text;
+            string corr = textBox3.Text;
 
+            try
+            {
+
+                bool re = reg.AnularDocumento(res, doc, ser, corr);
+
+                if (re)
+                {
+                    MessageBox.Show("Factura anulada: " + reg.Mensaje);
+                }
+                else
+                {
+                    if (reg.Mensaje != null)
+                    {
+                        MessageBox.Show("Error, respuesta: " + reg.Mensaje);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error, revisar log");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
