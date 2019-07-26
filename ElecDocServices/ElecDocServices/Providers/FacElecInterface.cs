@@ -8,6 +8,7 @@ namespace ElecDocServices.Providers
     {
         DataTable DocHeader { get; set; }
         DataTable DocDetail { get; set; }
+        DataTable DocProvider { get; set; }
 
         /// <summary>
         /// 

@@ -13,6 +13,7 @@ namespace ElecDocServices.Providers
 
         public DataTable DocHeader { get; set; }
         public DataTable DocDetail { get; set; }
+        public DataTable DocProvider { get; set; }
 
 
 
