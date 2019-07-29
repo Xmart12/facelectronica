@@ -108,6 +108,7 @@ namespace ElecDocServices
                 //Carga de elementos en la interface
                 inter.DocHeader = this.DocHeader;
                 inter.DocDetail = this.DocDetail;
+                inter.DocProvider = this.DocProvider;
 
                 //Ejecucion de proceso
                 List<Parameter> res = inter.RegistrarDocumento();
@@ -201,6 +202,7 @@ namespace ElecDocServices
                     //Carga de elementos en la interface
                     inter.DocHeader = this.DocHeader;
                     inter.DocDetail = this.DocDetail;
+                    inter.DocProvider = this.DocProvider;
 
                     //Ejecucion de proceso
                     List<Parameter> res = inter.ObtenerDocumento();
@@ -274,6 +276,7 @@ namespace ElecDocServices
                 //Carga de elementos en la interface
                 inter.DocHeader = this.DocHeader;
                 inter.DocDetail = this.DocDetail;
+                inter.DocProvider = this.DocProvider;
 
                 //Ejecucion de proceso
                 List<Parameter> res = inter.AnularDocumento();
