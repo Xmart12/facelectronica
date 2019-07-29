@@ -46,7 +46,9 @@ namespace ElecDocServices.Providers
 
         private requestDte ConstruirDatos()
         {
-            return new requestDte();
+            requestDte re = new requestDte();
+
+            return re;
         }
 
 
