@@ -56,9 +56,15 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Providers\Eforcon.cs" />
     <Compile Include="Providers\FacElecInterface.cs" />
     <Compile Include="Providers\Ifacere.cs" />
     <Compile Include="Providers\Ingface.cs" />
+    <Compile Include="Web References\EforconServices\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
     <Compile Include="Web References\IfacereServices\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -78,12 +84,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dependences\MySql.Data.dll" />
+    <None Include="Web References\EforconServices\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\EforconServices\Service1.disco" />
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\EforconServices\Service1.wsdl" />
+    <None Include="Web References\EforconServices\SSO_clsResponseGeneral.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\IfacereServices\clsResponseGeneral.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -133,6 +148,17 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="https://facturar.eforcon.com/eforconservice/Service1.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\EforconServices\</RelPath>
+      <UpdateFromURL>https://facturar.eforcon.com/eforconservice/Service1.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>ElecDocServices_EforconServices_Service1</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="https://www.ifacere.com/lineapruebas/sso_wsefactura.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\IfacereServices\</RelPath>

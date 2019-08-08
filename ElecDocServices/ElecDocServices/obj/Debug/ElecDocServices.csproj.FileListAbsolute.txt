@@ -10,3 +10,15 @@ C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\obj\Debu
 C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csproj.CopyComplete
 C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.dll
 C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.pdb
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\ElecDocServices.dll.config
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\ElecDocServices.dll
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\ElecDocServices.pdb
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\FTPConnection.dll
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\MySql.Data.dll
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\WinSCPnet.dll
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\FTPConnection.pdb
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csprojAssemblyReference.cache
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csproj.CoreCompileInputs.cache
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csproj.CopyComplete
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.dll
+C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.pdb
