@@ -19,12 +19,12 @@ namespace ElecDocServices.Providers
         public List<Parameter> RegistrarDocumento()
         {
             SSO_clsResponseGeneral res = new SSO_clsResponseGeneral();
-            string xml = null;
+            string xml = null, user = null, pass = null;
 
             try
             {
                 Service1 service = new Service1();
-                xml = ConstruirXMLRegistro();
+                xml = ConstruirXMLRegistro(ref user, ref pass);
                 res = service.mFacturaXML3(null, null, xml);
             }
             catch (Exception ex)
@@ -39,12 +39,12 @@ namespace ElecDocServices.Providers
         public List<Parameter> AnularDocumento()
         {
             SSO_clsResponseGeneral res = new SSO_clsResponseGeneral();
-            string xml = null;
+            string xml = null, user = null, pass = null;
 
             try
             {
                 Service1 service = new Service1();
-                xml = ConstruirXMLRegistro();
+                xml = ConstruirXMLRegistro(ref user, ref pass);
                 res = service.mAnularFactura(null, null, null, null, 0, 0, null);
             }
             catch (Exception ex)
@@ -63,9 +63,18 @@ namespace ElecDocServices.Providers
 
 
 
-        private string ConstruirXMLRegistro()
+        private string ConstruirXMLRegistro(ref string user, ref string pass)
         {
             string xml = "";
+
+            //Datos de Autenticacion
+            if (DocProvider.Rows.Count > 0)
+            {
+                string json = utl.convertirString(DocProvider.Rows[0]["ProviderAuth"]);
+
+                user = utl.convertirString(utl.getObjectFromJson(json).user);
+                pass = utl.convertirString(utl.getObjectFromJson(json).password);
+            }
 
             XmlDocument doc = new XmlDocument();
 
