@@ -133,8 +133,12 @@ namespace ElecDocServices.Providers
                     }
 
                     //Adicion a Encabezado
-                    //deta.ForEach(f => { dte.detalleDte });
+                    d.detalleDte = deta.ToArray();
                 }
+
+                datos.dte = d;
+                datos.usuario = utl.convertirString(this.DocProvider.Rows[0]["Auth"]);
+                datos.clave = utl.convertirString(this.DocProvider.Rows[0]["Auth"]);
 
             }
 
