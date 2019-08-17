@@ -9,7 +9,8 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Xml;                   
+using System.Xml;
+using Newtonsoft.Json;
 
 
 namespace ElecDocServices.Helpers
@@ -1342,6 +1343,43 @@ namespace ElecDocServices.Helpers
             }
 
             return macs;
+        }
+
+
+
+        /// <summary>
+        /// Function que convierte un objeto a JSON
+        /// </summary>
+        /// <param name="o">Objeto a convertir</param>
+        //Function que convierte un objeto a JSON
+        public string getJson(object o)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(o);
+            }
+            catch
+            {
+                return "{ }";
+            }
+        }
+
+
+        /// <summary>
+        /// Function que convierte un JSON a Objeto Dynamic
+        /// </summary>
+        /// <param name="json">Objeto json</param>
+        //Function que convierte unJSON a Objeto Dynamic
+        public dynamic getObjectFromJson(string json)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<dynamic>(json);
+            }
+            catch 
+            {
+                return null;
+            }
         }
 
 

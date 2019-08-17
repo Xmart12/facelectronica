@@ -18,7 +18,7 @@ namespace ElecDocServices.Providers
 
 
         //Funcion de comunicacion con Ifacere para Registro de documento
-        List<Parameter> IFacElecInterface.RegistrarDocumento()
+        public List<Parameter> RegistrarDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
             string xml = null;
@@ -40,7 +40,7 @@ namespace ElecDocServices.Providers
 
 
         //Funcion de comunicacion con Ifacere para Obtencion de datos de documento registrado
-        List<Parameter> IFacElecInterface.ObtenerDocumento()
+        public List<Parameter> ObtenerDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
             string xml = null;
@@ -62,7 +62,7 @@ namespace ElecDocServices.Providers
 
 
         //Funcion de comunicacion con Ifacere para Anulacion de documento
-        List<Parameter> IFacElecInterface.AnularDocumento()
+        public List<Parameter> AnularDocumento()
         {
             clsResponseGeneral res = new clsResponseGeneral();
             string xml = null;
