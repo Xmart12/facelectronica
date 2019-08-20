@@ -25,7 +25,7 @@ namespace ElecDocServices.Providers
             {
                 Service1 service = new Service1();
                 xml = ConstruirXMLRegistro(ref user, ref pass);
-                res = service.mFacturaXML3(null, null, xml);
+                res = service.mFacturaXML3(user, pass, xml);
             }
             catch (Exception ex)
             {
@@ -92,7 +92,7 @@ namespace ElecDocServices.Providers
 
             //Minimo
             XmlElement minimo = utl.createXmlNode(doc, "minimo");
-            plantilla.AppendChild(minimo);
+            documento.AppendChild(minimo);
 
             if (DocHeader.Rows.Count > 0)
             {
@@ -103,12 +103,12 @@ namespace ElecDocServices.Providers
                 minimo.AppendChild(utl.createXmlNode(doc, "serie", utl.convertirString(r["Serie"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "numero", utl.convertirString(r["DocNo"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "moneda", utl.convertirString(r["Divisa"])));
-                minimo.AppendChild(utl.createXmlNode(doc, "identificador", utl.convertirString(r["TipoDoc"])));
+                minimo.AppendChild(utl.createXmlNode(doc, "identificador", utl.convertirString(r["Documento"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "nit_contribuyente", utl.convertirString(r["NITCliente"]), true));
                 minimo.AppendChild(utl.createXmlNode(doc, "nombre_contribuyente", utl.convertirString(r["NombreCliente"]), true));
                 minimo.AppendChild(utl.createXmlNode(doc, "direccion_contribuyente", utl.convertirString(r["DireccionCliente"]), true));
-                minimo.AppendChild(utl.createXmlNode(doc, "dia_emision", utl.convertirString(utl.convertirDateTime(r["Fecha"]).Day)));
-                minimo.AppendChild(utl.createXmlNode(doc, "mes_emision", utl.convertirString(utl.convertirDateTime(r["Fecha"]).Month)));
+                minimo.AppendChild(utl.createXmlNode(doc, "dia_emision", utl.formatoCifras(utl.convertirDateTime(r["Fecha"]).Day, 2)));
+                minimo.AppendChild(utl.createXmlNode(doc, "mes_emision", utl.formatoCifras(utl.convertirDateTime(r["Fecha"]).Month, 2)));
                 minimo.AppendChild(utl.createXmlNode(doc, "anio_emision", utl.convertirString(utl.convertirDateTime(r["Fecha"]).Year)));
                 minimo.AppendChild(utl.createXmlNode(doc, "valor_neto", utl.formatoCurrencySS(r["ValorNeto"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "total", utl.formatoCurrencySS(r["Total"])));
@@ -117,11 +117,6 @@ namespace ElecDocServices.Providers
                 minimo.AppendChild(utl.createXmlNode(doc, "monto_exento", utl.formatoCurrencySS(r["Exento"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "estado", "E"));
                 minimo.AppendChild(utl.createXmlNode(doc, "tasa_cambio", utl.convertirString(r["TasaCambio"])));
-
-                XmlElement opcional = utl.createXmlNode(doc, "opcional");
-                minimo.AppendChild(opcional);
-
-                opcional.AppendChild(utl.createXmlNode(doc, "total_letras", utl.formatoNumeroALetras(utl.convertirDouble(r["Total"]), 2, true, utl.convertirString(r["Moneda"]), true).ToUpper(), true));
             }
 
             if (DocDetail.Rows.Count > 0)
@@ -142,6 +137,17 @@ namespace ElecDocServices.Providers
                     definicion.AppendChild(utl.createXmlNode(doc, "precio_unitario", utl.formatoCurrencySS(dr["PrecioUnitario"])));
                     definicion.AppendChild(utl.createXmlNode(doc, "valor", utl.formatoCurrencySS(dr["Importe"])));
                 }
+            }
+
+            //Opcionales
+            if (DocHeader.Rows.Count > 0)
+            {
+                DataRow r = DocHeader.Rows[0];
+
+                XmlElement opcional = utl.createXmlNode(doc, "opcional");
+                minimo.AppendChild(opcional);
+
+                opcional.AppendChild(utl.createXmlNode(doc, "total_letras", utl.formatoNumeroALetras(utl.convertirDouble(r["Total"]), 2, true, utl.convertirString(r["Moneda"]), true).ToUpper(), true));
             }
 
             xml = utl.getXmlString(doc);

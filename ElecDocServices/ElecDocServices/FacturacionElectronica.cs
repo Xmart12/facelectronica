@@ -462,7 +462,20 @@ namespace ElecDocServices
             bool res = con.execUpdate("documentheader", campos, datos, whr);
 
             //Verificacion de actualizacion de registro
-            if (!res)
+            if (res)
+            {
+                int num = (utl.convertirInt(this.NoDocumento) + 1);
+
+                //Actualizacion de correlativo
+                res = con.execUpdate("corrdocument", "Ultimo", num, "Resolucion = '" + this.Resolucion + "' "); 
+
+                //Verificacion de actualizacion de correlativo
+                if (!res)
+                {
+                    err.AddErrors("No se actualizo registro de correlativo de documento", null, null, this.UserSystem);
+                }
+            }
+            else
             {
                 err.AddErrors("No se actualizo registro de documento", null, null, this.UserSystem);
             }
@@ -641,7 +654,6 @@ namespace ElecDocServices
 
 
         #endregion
-
 
     }
 }

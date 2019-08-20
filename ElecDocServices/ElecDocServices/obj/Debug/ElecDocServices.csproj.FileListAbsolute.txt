@@ -22,3 +22,4 @@ C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csproj.CopyComplete
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.dll
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.pdb
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\ElecDocServices\bin\Debug\Newtonsoft.Json.dll

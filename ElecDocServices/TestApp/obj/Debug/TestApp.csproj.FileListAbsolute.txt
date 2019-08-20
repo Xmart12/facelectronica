@@ -34,3 +34,4 @@ C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.csproj.CoreComp
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.csproj.CopyComplete
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.exe
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.pdb
+C:\Projects\TFS\Compusal\FacElectronica\ElecDocServices\TestApp\bin\Debug\Newtonsoft.Json.dll
