@@ -16,6 +16,8 @@ namespace ElecDocServices.Providers
         public DataTable DocProvider { get; set; }
 
 
+
+        //Funcion de comunicacion con Ifacere para Registro de documento
         public List<Parameter> RegistrarDocumento()
         {
             SSO_clsResponseGeneral res = new SSO_clsResponseGeneral();
@@ -36,16 +38,20 @@ namespace ElecDocServices.Providers
             return ObtenerDatosResultado(res, xml, "mFacturaXML3");
         }
 
+
+        //Funcion de comunicacion con Ifacere para Anulacion de documento
         public List<Parameter> AnularDocumento()
         {
             SSO_clsResponseGeneral res = new SSO_clsResponseGeneral();
             string xml = null, user = null, pass = null;
+            string resol = null, serie = null, razon = null;
+            int docno = 0, anio = 0;
 
             try
             {
                 Service1 service = new Service1();
-                xml = ConstruirXMLRegistro(ref user, ref pass);
-                res = service.mAnularFactura(null, null, null, null, 0, 0, null);
+                ConstruirDatosAnulacion(ref user, ref pass, ref resol, ref serie, ref docno, ref anio, ref razon);
+                res = service.mAnularFactura(user, pass, resol, serie, docno, anio, razon);
             }
             catch (Exception ex)
             {
@@ -56,6 +62,8 @@ namespace ElecDocServices.Providers
             return ObtenerDatosResultado(res, xml, "mFacturaXML3");
         }
 
+
+        //Funcion de comunicacion con Ifacere para Obtencion de datos de documento registrado
         public List<Parameter> ObtenerDocumento()
         {
             throw new System.NotImplementedException();
@@ -63,6 +71,10 @@ namespace ElecDocServices.Providers
 
 
 
+        #region Funciones
+
+
+        //Construccion de XML
         private string ConstruirXMLRegistro(ref string user, ref string pass)
         {
             string xml = "";
@@ -156,6 +168,32 @@ namespace ElecDocServices.Providers
         }
 
 
+        //Construccion de Datos para la anulacion de documento
+        private void ConstruirDatosAnulacion(ref string user, ref string pass, ref string resolucion, ref string serie, ref int nodoc, ref int anio, ref string razon)
+        {
+            //Datos de Autenticacion
+            if (DocProvider.Rows.Count > 0)
+            {
+                string json = utl.convertirString(DocProvider.Rows[0]["ProviderAuth"]);
+
+                user = utl.convertirString(utl.getObjectFromJson(json).user);
+                pass = utl.convertirString(utl.getObjectFromJson(json).password);
+            }
+
+            //Datos de Documento
+            if (DocHeader.Rows.Count > 0)
+            {
+                DataRow r = DocHeader.Rows[0];
+
+                resolucion = utl.convertirString(r["Resolucion"]);
+                serie = utl.convertirString(r["Serie"]);
+                nodoc = utl.convertirInt(r["DocNo"]);
+                anio = utl.convertirDateTime(r["Fecha"]).Year;
+                razon = utl.convertirString(r["Observacion"]);
+            }
+        }
+
+
         //Construcion de listado de datos a retornar por las funciones
         private List<Parameter> ObtenerDatosResultado(SSO_clsResponseGeneral res, string xml, string function)
         {
@@ -175,5 +213,9 @@ namespace ElecDocServices.Providers
 
             return parameters;
         }
+
+
+        #endregion
+
     }
 }
