@@ -507,26 +507,31 @@ namespace ElecDocServices
         {
             //Obtencion de documento PDF Bytes
             object pdf = par.FirstOrDefault(f => f.ParameterName.Equals("Respuesta")).Value;
+            bool allowPdf = utl.convertirBoolean(par.FirstOrDefault(f => f.ParameterName.Equals("PDF")).Value);
 
-            //Verificacion de Guardado de PDF localmente
-            if (GuardarPDF(pdf))
+            //Verificacion de permiso de guardado de PDF por servicio
+            if (allowPdf)
             {
-                //Verificacion de permiso de guardado en servidor
-                if (utl.convertirBoolean(utl.getConfigValue(ConfigFile, "FTP", "services")))
+                //Verificacion de Guardado de PDF localmente
+                if (GuardarPDF(pdf))
                 {
-                    //Verificacion de subida de documento
-                    if (!CargarDocumento())
+                    //Verificacion de permiso de guardado en servidor
+                    if (utl.convertirBoolean(utl.getConfigValue(ConfigFile, "FTP", "services")))
                     {
-                        extmsg = " - Error en proceso, ver log.";
-                        err.AddErrors("Error en carga de documento a servidor", null, null, this.UserSystem);
+                        //Verificacion de subida de documento
+                        if (!CargarDocumento())
+                        {
+                            extmsg = " - Error en proceso, ver log.";
+                            err.AddErrors("Error en carga de documento a servidor", null, null, this.UserSystem);
+                        }
                     }
                 }
-            }
-            else
-            {
-                //Guardado de error de proceso
-                extmsg = " - Error en proceso, ver log.";
-                err.AddErrors("Error en guardado de documento", null, null, this.UserSystem);
+                else
+                {
+                    //Guardado de error de proceso
+                    extmsg = " - Error en proceso, ver log.";
+                    err.AddErrors("Error en guardado de documento", null, null, this.UserSystem);
+                }
             }
         }
 

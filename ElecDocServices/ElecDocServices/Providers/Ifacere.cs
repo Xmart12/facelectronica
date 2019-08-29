@@ -251,6 +251,7 @@ namespace ElecDocServices.Providers
                 new Parameter() { ParameterName = "XML", Value = xml },
                 new Parameter() { ParameterName = "Function", Value = function },
                 new Parameter() { ParameterName = "Resultado", Value = res.pResultado },
+                new Parameter() { ParameterName = "PDF", Value = true },
                 new Parameter() { ParameterName = "Respuesta", Value = res.pRespuesta },
                 new Parameter() { ParameterName = "Mensaje", Value = res.pDescripcion },
                 new Parameter() { ParameterName = "IDDoc", Value = res.pIdSerieSat },
