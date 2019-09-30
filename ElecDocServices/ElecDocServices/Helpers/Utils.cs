@@ -49,7 +49,7 @@ namespace ElecDocServices.Helpers
             try
             {
                 string str = o.ToString();
-                str = Regex.Replace(str, @"[\[\]']+", "`");
+                //str = Regex.Replace(str, @"[\[\]']+", "`");
                 return str;
             }
             catch

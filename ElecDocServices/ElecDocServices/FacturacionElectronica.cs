@@ -391,7 +391,7 @@ namespace ElecDocServices
                 if (Funcion.Equals(Modo.Registro))
                 {
                     //Validacion de resolucion de proveedor aun vigente
-                    if (utl.convertirBoolean(DocProvider.Rows[0]["Liquidado"]))
+                    if (utl.convertirInt(DocProvider.Rows[0]["Liquidado"]).Equals(1))
                     {
                         throw new Exception("Resolución de documento está liquidado");
                     }
@@ -447,14 +447,16 @@ namespace ElecDocServices
         {
             //Obtencion de datos para actualizar
             string doc = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("IDDoc")).Value);
+            string cae = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
+            string caec = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAEC")).Value);
             bool allowFtp = utl.convertirBoolean(utl.getConfigValue(this.ConfigFile, "FTP", "services"));
             string filename = this.Resolucion + this.TipoDoc + this.SerieDoc + this.NoDocumento + ".pdf";
             string remotepath = utl.convertirString(utl.getConfigValue(this.ConfigFile, "FTP_REMOTE_PATH", "ftp"));
             string path = (allowFtp) ? (remotepath + filename) : null;
 
             //Preparacion de actualizacion de registro
-            string[] campos = { "Registrado", "FechaRegistro", "UsuarioRegistro", "RefDocTributario", "DocumentPath", "Estado" };
-            object[] datos = { true, utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, doc, path, 1 };
+            string[] campos = { "Registrado", "FechaRegistro", "UsuarioRegistro", "RefDocTributario", "DocumentPath", "Estado", "CAE", "CAEC" };
+            object[] datos = { 1, utl.formatoFechaSql(DateTime.Now, true), this.UserSystem, doc, path, 1, cae, caec };
             string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
             whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
 
