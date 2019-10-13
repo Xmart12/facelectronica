@@ -27,6 +27,7 @@ namespace ElecDocServices.Providers
             {
                 Service1 service = new Service1();
                 xml = ConstruirXMLRegistro(ref user, ref pass);
+                res = service.mObtieneInfoCorrelativo(user, pass, utl.convertirString(DocHeader.Rows[0]["Resolucion"]));
                 res = service.mFacturaXML3(user, pass, xml);
             }
             catch (Exception ex)

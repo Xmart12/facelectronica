@@ -613,7 +613,7 @@ namespace ElecDocServices.Helpers
                 switch (t.Name)
                 {
                     case "String": default:
-                        n = convertirString(o);
+                        n = MySql.Data.MySqlClient.MySqlHelper.EscapeString(convertirString(o));
                         dato = (n != "") ? "'" + n + "'" : ((nonulo) ? "''" : "NULL");
                         break;
                     case "Int32": case "Int64": case "Double": case "Decimal":

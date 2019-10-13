@@ -83,7 +83,7 @@ namespace ElecDocServices
         public bool RegistrarDocumento(string Resol, string TipoDoc, string Serie, string DocNo)
         {
             bool resultado = false;
-            string msg = null;
+            string msg = null, cae = null;
 
             //Seteo de variables de negocio
             this.Resolucion = Resol;
@@ -119,6 +119,7 @@ namespace ElecDocServices
                 //Obtencion de resultados
                 resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
                 msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+                cae = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
                 string extmsg = null;
 
                 //Verificacion de resultado exitoso
@@ -129,6 +130,11 @@ namespace ElecDocServices
 
                     //Ejecucion de proceso de Documento PDF
                     ProcesoPDF(res, ref extmsg);
+                }
+                else if (cae != "")
+                {
+                    //Actualizacion por si CAE no regresa vacio pero dio error
+                    ActualizarRegistroCAE(res);
                 }
 
                 //Captura de mensajes
@@ -481,6 +487,23 @@ namespace ElecDocServices
             {
                 err.AddErrors("No se actualizo registro de documento", null, null, this.UserSystem);
             }
+        }
+
+
+        //Actualizacion de registro de documento si en caso solo se obtiene CAE
+        private void ActualizarRegistroCAE(List<Parameter> par)
+        {
+            string doc = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("IDDoc")).Value);
+            string cae = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
+            string caec = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAEC")).Value);
+
+            string[] campos = { "RefDocTributario", "CAE", "CAEC" };
+            object[] datos = { doc,cae, caec };
+            string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
+            whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
+
+            //Actualizacion de registro
+            bool res = con.execUpdate("documentheader", campos, datos, whr);
         }
 
 
