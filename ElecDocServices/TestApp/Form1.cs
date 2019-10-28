@@ -12,7 +12,8 @@ namespace TestApp
 {
     public partial class Form1 : Form
     {
-        private string config = "C:\\Projects\\TFS\\Compusal\\Resources\\config.config";
+        //private string config = "C:\\Projects\\TFS\\Compusal\\Resources\\config.config";
+        private string config = "C:\\Temp\\config.config";
         private FacturacionElectronica reg = null;
 
         public Form1()

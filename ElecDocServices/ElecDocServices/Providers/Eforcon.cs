@@ -53,6 +53,9 @@ namespace ElecDocServices.Providers
                 Service1 service = new Service1();
                 ConstruirDatosAnulacion(ref user, ref pass, ref resol, ref serie, ref docno, ref anio, ref razon);
                 res = service.mAnularFactura(user, pass, resol, serie, docno, anio, razon);
+
+                var data = new { Resolucion = resol, Serie = serie, DocNo = docno, Año = anio, RazonAnulacion = razon };
+                xml = utl.getJson(data);
             }
             catch (Exception ex)
             {
@@ -60,7 +63,7 @@ namespace ElecDocServices.Providers
                 res.pDescripcion = ex.Message;
             }
 
-            return ObtenerDatosResultado(res, xml, "mFacturaXML3");
+            return ObtenerDatosResultado(res, xml, "mAnularFactura");
         }
 
 
