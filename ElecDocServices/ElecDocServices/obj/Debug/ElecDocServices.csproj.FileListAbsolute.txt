@@ -18,7 +18,6 @@ C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\MySql.Data.dll
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\WinSCPnet.dll
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\bin\Debug\FTPConnection.pdb
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csprojAssemblyReference.cache
-C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csproj.CoreCompileInputs.cache
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.csproj.CopyComplete
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.dll
 C:\Temp\facelectronica\ElecDocServices\ElecDocServices\obj\Debug\ElecDocServices.pdb

@@ -30,7 +30,6 @@ C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.csprojAssemblyR
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.Form1.resources
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.Properties.Resources.resources
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.csproj.GenerateResource.cache
-C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.csproj.CoreCompileInputs.cache
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.csproj.CopyComplete
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.exe
 C:\Temp\facelectronica\ElecDocServices\TestApp\obj\Debug\TestApp.pdb

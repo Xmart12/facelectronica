@@ -18,7 +18,6 @@ C:\Temp\facelectronica\ElecDocServices\FTPConnection\bin\Debug\FTPConnection.dll
 C:\Temp\facelectronica\ElecDocServices\FTPConnection\bin\Debug\FTPConnection.pdb
 C:\Temp\facelectronica\ElecDocServices\FTPConnection\bin\Debug\WinSCPnet.dll
 C:\Temp\facelectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csprojAssemblyReference.cache
-C:\Temp\facelectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csproj.CoreCompileInputs.cache
 C:\Temp\facelectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.csproj.CopyComplete
 C:\Temp\facelectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.dll
 C:\Temp\facelectronica\ElecDocServices\FTPConnection\obj\Debug\FTPConnection.pdb

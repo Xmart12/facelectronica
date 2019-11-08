@@ -134,7 +134,10 @@ namespace ElecDocServices
                 else if (cae != "")
                 {
                     //Actualizacion por si CAE no regresa vacio pero dio error
-                    ActualizarRegistroCAE(res);
+                    //ActualizarRegistroCAE(res);
+                    ActualizarRegistro(res);
+                    resultado = true;
+                    msg = "Se hizo registro de Documento. (E)";
                 }
 
                 //Captura de mensajes
@@ -334,6 +337,7 @@ namespace ElecDocServices
 
             string whr = "dh.Resolucion = '" + this.Resolucion + "' and dh.Documento = '" + this.TipoDoc + "' ";
             whr += " and dh.Serie = '" + this.SerieDoc + "' and dh.DocNo = '" + this.NoDocumento + "' ";
+            whr += " and TrxVoided = 0 ";
 
             DocHeader = con.obtenerDatos("documentheader dh", campos, join, whr);
 
