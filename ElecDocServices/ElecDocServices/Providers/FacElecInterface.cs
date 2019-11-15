@@ -18,6 +18,11 @@ namespace ElecDocServices.Providers
         /// <summary>
         /// 
         /// </summary>
+        List<Parameter> RegistrarDocNC();
+
+        /// <summary>
+        /// 
+        /// </summary>
         List<Parameter> AnularDocumento();
 
         /// <summary>

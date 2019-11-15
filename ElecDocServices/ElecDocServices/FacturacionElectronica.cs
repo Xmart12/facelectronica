@@ -331,7 +331,7 @@ namespace ElecDocServices
             string campos = " dh.Resolucion, dh.Documento, dh.Serie, dh.DocNo, dh.ReferenciaDoc, dh.Fecha, dh.Empresa, ";
             campos += " dh.Sucursal, dh.Caja, dh.Usuario, dh.Divisa, bg.Name Moneda, dh.TasaCambio, dh.TipoGeneracion, ";
             campos += " dh.NombreCliente, dh.DireccionCliente, dh.NITCliente, dh.ValorNeto, dh.IVA, dh.Descuento,  ";
-            campos += " dh.Exento, dh.Total, dh.Estado, dh.Observacion, dh.Estado ";
+            campos += " dh.Exento, dh.Total, dh.Estado, dh.Observacion, dh.Estado, dh.Parametros ";
 
             string[] join = { "left join Badge bg on dh.Divisa = bg.BadgeID " };
 
