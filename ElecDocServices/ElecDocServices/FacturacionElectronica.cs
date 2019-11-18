@@ -155,6 +155,89 @@ namespace ElecDocServices
 
 
         /// <summary>
+        /// Funcion de Registro de Nota de Credito segun datos enviados
+        /// </summary>
+        /// <param name="Resol">Resolucion de proveedor a la que pertenece NC</param>
+        /// <param name="TipoDoc">TipoDoc de documento a registrar</param>
+        /// <param name="Serie">Serie del documento a registrar</param>
+        /// <param name="NoNC">Correlativo del documento a registrar</param>
+        /// <returns>Respuesta de éxito o fallo de registro. Ver Variable de mensaje</returns>
+        //Funcion de Registro de Nota de Credito segun datos enviados
+        public bool RegistrarDocNC(string Resol, string TipoDoc, string Serie, string NoNC)
+        {
+            bool resultado = false;
+            string msg = null, cae = null;
+
+            //Seteo de variables de negocio
+            this.Resolucion = Resol;
+            this.TipoDoc = TipoDoc;
+            this.SerieDoc = Serie;
+            this.NoDocumento = NoNC;
+
+            //Seteo de modo de funcion
+            Funcion = Modo.Registro;
+
+            //Carga de Datos
+            CargarDatos();
+
+            try
+            {
+                //Obtencion de Clase del proveedor para ejecucion del proceso
+                string provider = utl.convertirString(DocProvider.Rows[0]["ClassName"]);
+
+                //Seleccion de interface segun clase de proveedor
+                IFacElecInterface inter = ObtenerInterface(provider);
+
+                //Carga de elementos en la interface
+                inter.DocHeader = this.DocHeader;
+                inter.DocDetail = this.DocDetail;
+                inter.DocProvider = this.DocProvider;
+
+                //Ejecucion de proceso
+                List<Parameter> res = inter.RegistrarDocNC();
+
+                //Bitacora de ejecucion
+                GuardarBitacora(res);
+
+                //Obtencion de resultados
+                resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
+                msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+                cae = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
+                string extmsg = null;
+
+                //Verificacion de resultado exitoso
+                if (resultado)
+                {
+                    //Actualizacion de registros
+                    ActualizarRegistro(res);
+
+                    //Ejecucion de proceso de Documento PDF
+                    ProcesoPDF(res, ref extmsg);
+                }
+                else if (cae != "")
+                {
+                    //Actualizacion por si CAE no regresa vacio pero dio error
+                    //ActualizarRegistroCAE(res);
+                    ActualizarRegistro(res);
+                    resultado = true;
+                    msg = "Se hizo registro de Documento. (E)";
+                }
+
+                //Captura de mensajes
+                this.Mensaje = msg + extmsg;
+            }
+            catch (Exception ex)
+            {
+                //Captura de Excepcion
+                err.AddErrors(ex, "Registro de Documento NC");
+                this.Mensaje = "Error en la Ejecución: " + ex.Message;
+            }
+
+            return resultado;
+        }
+
+
+        /// <summary>
         /// Funcion de obtencion de documento segun datos enviados
         /// </summary>
         /// <param name="Resol">Resolucion de proveedor a la que pertenece el documento</param>
@@ -310,7 +393,7 @@ namespace ElecDocServices
             catch (Exception ex)
             {
                 //Captura de Excepcion
-                err.AddErrors(ex, "Obtencion de Documento");
+                err.AddErrors(ex, "Anulacion de Documento");
                 this.Mensaje = "Error en la Ejecución: " + ex.Message;
             }
 
@@ -318,6 +401,76 @@ namespace ElecDocServices
 
         }
 
+
+        /// <summary>
+        /// Funcion de Anulacion de NC segun datos enviados
+        /// </summary>
+        /// <param name="Resol">Resolucion de proveedor a la que pertenece el documento</param>
+        /// <param name="TipoDoc">TipoDoc de documento a anular</param>
+        /// <param name="Serie">Serie del documento a anular</param>
+        /// <param name="DocNo">Correlativo del documento a anular</param>
+        /// <returns>Respuesta de éxito o fallo de anulacion de documento. Ver Variable de mensaje</returns>
+        //Anulacion de NC al proveedor
+        public bool AnularDocNC(string Resol, string TipoDoc, string Serie, string NoNC)
+        {
+            bool resultado = false;
+            string msg = null;
+
+            //Seteo de variables de negocio
+            this.Resolucion = Resol;
+            this.TipoDoc = TipoDoc;
+            this.SerieDoc = Serie;
+            this.NoDocumento = NoNC;
+
+            //Seteo de modo de funcion
+            Funcion = Modo.Anulacion;
+
+            //Carga de Datos
+            CargarDatos();
+
+            try
+            {
+                //Obtencion de Clase del proveedor para ejecucion del proceso
+                string provider = utl.convertirString(DocProvider.Rows[0]["ClassName"]);
+
+                //Seleccion de interface segun clase de proveedor
+                IFacElecInterface inter = ObtenerInterface(provider);
+
+                //Carga de elementos en la interface
+                inter.DocHeader = this.DocHeader;
+                inter.DocDetail = this.DocDetail;
+                inter.DocProvider = this.DocProvider;
+
+                //Ejecucion de proceso
+                List<Parameter> res = inter.AnularDocNC();
+
+                //Bitacora de ejecucion
+                GuardarBitacora(res);
+
+                //Obtencion de resultados
+                resultado = utl.convertirBoolean(res.FirstOrDefault(f => f.ParameterName.Equals("Resultado")).Value);
+                msg = utl.convertirString(res.FirstOrDefault(f => f.ParameterName.Equals("Mensaje")).Value);
+                string extmsg = null;
+
+                if (resultado)
+                {
+                    //Actualizacion de registro de anulacion
+                    ActualizarRegsitroAnulacion(res);
+                }
+
+                //Captura de mensajes
+                this.Mensaje = msg + extmsg;
+            }
+            catch (Exception ex)
+            {
+                //Captura de Excepcion
+                err.AddErrors(ex, "Anulacion de NC");
+                this.Mensaje = "Error en la Ejecución: " + ex.Message;
+            }
+
+            return resultado;
+
+        }
 
 
         #region Funciones
@@ -491,23 +644,6 @@ namespace ElecDocServices
             {
                 err.AddErrors("No se actualizo registro de documento", null, null, this.UserSystem);
             }
-        }
-
-
-        //Actualizacion de registro de documento si en caso solo se obtiene CAE
-        private void ActualizarRegistroCAE(List<Parameter> par)
-        {
-            string doc = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("IDDoc")).Value);
-            string cae = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAE")).Value);
-            string caec = utl.convertirString(par.FirstOrDefault(f => f.ParameterName.Equals("CAEC")).Value);
-
-            string[] campos = { "RefDocTributario", "CAE", "CAEC" };
-            object[] datos = { doc,cae, caec };
-            string whr = "Resolucion = '" + this.Resolucion + "' and Documento = '" + this.TipoDoc + "' ";
-            whr += " and Serie = '" + this.SerieDoc + "' and DocNo = '" + this.NoDocumento + "' ";
-
-            //Actualizacion de registro
-            bool res = con.execUpdate("documentheader", campos, datos, whr);
         }
 
 

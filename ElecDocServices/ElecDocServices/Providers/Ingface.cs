@@ -14,6 +14,8 @@ namespace ElecDocServices.Providers
         public DataTable DocDetail { get; set; }
         public DataTable DocProvider { get; set; }
 
+
+        //
         public List<Parameter> RegistrarDocumento()
         {
             responseDte res = new responseDte();
@@ -34,15 +36,35 @@ namespace ElecDocServices.Providers
             return ObtenerResultado(res, reg, "registrarDte");
         }
 
+
+        //
+        public List<Parameter> RegistrarDocNC()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        //
         public List<Parameter> ObtenerDocumento()
         {
             throw new NotImplementedException();
         }
 
+
+        //
         public List<Parameter> AnularDocumento()
         {
             throw new NotImplementedException();
         }
+
+
+        //
+        public List<Parameter> AnularDocNC()
+        {
+            throw new NotImplementedException();
+        }
+
+
 
 
         private requestDte ConstruirDatos()

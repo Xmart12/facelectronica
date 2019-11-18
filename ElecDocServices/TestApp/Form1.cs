@@ -35,11 +35,11 @@ namespace TestApp
             try
             {
 
-                bool re = reg.RegistrarDocumento(res, doc, ser, corr);
+                bool re = reg.RegistrarDocNC(res, doc, ser, corr);
 
                 if (re)
                 {
-                    MessageBox.Show("Factura Registrada: " + reg.Mensaje);
+                    MessageBox.Show("NC Registrada: " + reg.Mensaje);
                     reg.ObtenerDocumento(res, doc, ser, corr);
                 }
                 else
@@ -108,7 +108,7 @@ namespace TestApp
             try
             {
 
-                bool re = reg.AnularDocumento(res, doc, ser, corr);
+                bool re = reg.AnularDocNC(res, doc, ser, corr);
 
                 if (re)
                 {

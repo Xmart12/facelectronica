@@ -28,6 +28,12 @@ namespace ElecDocServices.Providers
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        List<Parameter> AnularDocNC();
+
+        /// <summary>
+        /// 
+        /// </summary>
         List<Parameter> ObtenerDocumento();
     }
 }

@@ -39,6 +39,13 @@ namespace ElecDocServices.Providers
         }
 
 
+        //
+        public List<Parameter> RegistrarDocNC()
+        {
+            throw new NotImplementedException();
+        }
+
+
         //Funcion de comunicacion con Ifacere para Obtencion de datos de documento registrado
         public List<Parameter> ObtenerDocumento()
         {
@@ -80,6 +87,13 @@ namespace ElecDocServices.Providers
             }
 
             return ObtenerDatosResultado(res, xml, "AnulacionFacturaXML");
+        }
+
+
+        //
+        public List<Parameter> AnularDocNC()
+        {
+            throw new NotImplementedException();
         }
 
 

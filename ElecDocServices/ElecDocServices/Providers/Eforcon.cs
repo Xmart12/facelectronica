@@ -49,7 +49,7 @@ namespace ElecDocServices.Providers
             try
             {
                 Service1 service = new Service1();
-                
+                xml = ConstruirXMLRegistroNC(ref user, ref pass);
                 res = service.mNotaCreditoCAE(user, pass, xml);
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace ElecDocServices.Providers
                 res.pDescripcion = ex.Message;
             }
 
-            return ObtenerDatosResultado(res, xml, "");
+            return ObtenerDatosResultado(res, xml, "mNotaCreditoCAE");
         }
 
 
@@ -89,6 +89,33 @@ namespace ElecDocServices.Providers
         }
 
 
+        //Funcion de comunicacion con Forcon para Anulacion de NC
+        public List<Parameter> AnularDocNC()
+        {
+            SSO_clsResponseGeneral res = new SSO_clsResponseGeneral();
+            string xml = null, user = null, pass = null;
+            string resol = null, serie = null, razon = null;
+            int docno = 0, anio = 0;
+
+            try
+            {
+                Service1 service = new Service1();
+                ConstruirDatosAnulacion(ref user, ref pass, ref resol, ref serie, ref docno, ref anio, ref razon);
+                res = service.mAnularNC(user, pass, resol, serie, docno, anio, razon);
+
+                var data = new { Resolucion = resol, Serie = serie, DocNo = docno, Año = anio, RazonAnulacion = razon };
+                xml = utl.getJson(data);
+            }
+            catch (Exception ex)
+            {
+                res.pResultado = false;
+                res.pDescripcion = ex.Message;
+            }
+
+            return ObtenerDatosResultado(res, xml, "mAnularNC");
+        }
+
+
         //Funcion de comunicacion con Forcon para Obtencion de datos de documento registrado
         public List<Parameter> ObtenerDocumento()
         {
@@ -98,6 +125,7 @@ namespace ElecDocServices.Providers
 
 
         #region Funciones
+
 
 
         //Construccion de XML
@@ -259,6 +287,9 @@ namespace ElecDocServices.Providers
                 minimo.AppendChild(utl.createXmlNode(doc, "tasa_cambio", utl.convertirString(r["TasaCambio"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "concepto", utl.convertirString(r["Observacion"])));
                 minimo.AppendChild(utl.createXmlNode(doc, "resolucion_factura", docref[0]));
+                minimo.AppendChild(utl.createXmlNode(doc, "numero_factura", docref[1]));
+                minimo.AppendChild(utl.createXmlNode(doc, "serie_factura", docref[2]));
+                minimo.AppendChild(utl.createXmlNode(doc, "fecha_emision_factura", docref[3]));
             }
 
             if (DocDetail.Rows.Count > 0)
@@ -346,7 +377,9 @@ namespace ElecDocServices.Providers
         }
 
 
+
         #endregion
+
 
     }
 }
