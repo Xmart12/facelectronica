@@ -27,7 +27,7 @@ namespace ElecDocServices.Providers
             {
                 Service1 service = new Service1();
                 xml = ConstruirXMLRegistro(ref user, ref pass);
-                //res = service.mObtieneInfoCorrelativo(user, pass, utl.convertirString(DocHeader.Rows[0]["Resolucion"]));
+                res = service.mObtieneInfoCorrelativo(user, pass, utl.convertirString(DocHeader.Rows[0]["Resolucion"]));
                 res = service.mFacturaXML3(user, pass, xml);
             }
             catch (Exception ex)
@@ -213,6 +213,7 @@ namespace ElecDocServices.Providers
                 XmlElement opcional = utl.createXmlNode(doc, "opcional");
                 minimo.AppendChild(opcional);
 
+                opcional.AppendChild(utl.createXmlNode(doc, "opcional20", utl.convertirString("mario.espinoza@dada-dada.com")));
                 opcional.AppendChild(utl.createXmlNode(doc, "total_letras", utl.formatoNumeroALetras(utl.convertirDouble(r["Total"]), 2, true, utl.convertirString(r["Moneda"]), true).ToUpper(), true));
             }
 
@@ -320,6 +321,7 @@ namespace ElecDocServices.Providers
                 XmlElement opcional = utl.createXmlNode(doc, "opcional");
                 minimo.AppendChild(opcional);
 
+                opcional.AppendChild(utl.createXmlNode(doc, "opcional20", utl.convertirString("mario.espinoza@dada-dada.com")));
                 opcional.AppendChild(utl.createXmlNode(doc, "total_letras", utl.formatoNumeroALetras(utl.convertirDouble(r["Total"]), 2, true, utl.convertirString(r["Moneda"]), true).ToUpper(), true));
             }
 

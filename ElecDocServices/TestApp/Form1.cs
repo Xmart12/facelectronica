@@ -35,7 +35,7 @@ namespace TestApp
             try
             {
 
-                bool re = reg.RegistrarDocNC(res, doc, ser, corr);
+                bool re = reg.RegistrarDocumento(res, doc, ser, corr);
 
                 if (re)
                 {
